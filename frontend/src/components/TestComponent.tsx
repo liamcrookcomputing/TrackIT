@@ -1,11 +1,9 @@
-function TestComponent() {
+function TestComponent(data) {
     return (
         <>
-            <section id="center">
-                <div>
-                    <h2>Test Component</h2>
-                </div>
-            </section>
+            <div>
+                <h2>{data.text}</h2>
+            </div>
         </>
     )
 }

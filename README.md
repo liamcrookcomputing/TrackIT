@@ -153,4 +153,4 @@ Contributions and feedback are welcome.
 
 ## License
 
-License information will be added once the project structure has been established.
+MIT License
