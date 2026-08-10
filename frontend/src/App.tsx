@@ -71,7 +71,9 @@ function App() {
     <>
       <section id="center">
         <div>
-          
+          <h1 className="text-4xl font-bold underline">
+            Tailwind works!
+          </h1>
           <ApplicationForm addApplication={addApplication} />
           <input
             type="text"
