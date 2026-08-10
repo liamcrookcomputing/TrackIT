@@ -8,7 +8,7 @@ function ApplicationList({applications, onEdit, deleteApplication }: {applicatio
     
 
     return (
-        <>
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
             {applications.map((application)=>(
                 <ApplicationCard 
                     key={application.id}
@@ -17,7 +17,7 @@ function ApplicationList({applications, onEdit, deleteApplication }: {applicatio
                     deleteApplication={deleteApplication}
                 />
             ))}
-        </>
+        </div>
     )
 }
 

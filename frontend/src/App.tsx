@@ -1,6 +1,7 @@
 import type { Application } from './components/ApplicationCard.tsx';
 import { useState } from 'react';
 import { useMemo } from 'react';
+import ApplicationDashboard from './components/ApplicationDashboard.tsx';
 import ApplicationList from './components/ApplicationList.tsx';
 import ApplicationForm from './components/ApplicationForm.tsx';
 import ApplicationEdit from './components/ApplicationEdit.tsx';
@@ -22,6 +23,19 @@ function App() {
             application.position.toLowerCase().includes(search.toLowerCase())
         )
     }, [applications, search])
+
+  const totalApplications = applications.length
+  const appliedApplications = applications.filter(
+    application => application.status === "Applied"
+  ).length
+  const interviewApplications = applications.filter(
+    application => application.status === "Interview"
+  ).length + applications.filter(
+    application => application.status === "Final Interview"
+  ).length
+  const offerApplications = applications.filter(
+    application => application.status === "Offer"
+  ).length
 
   function addApplication(newApplication: Application) {
     const applicationWithId = 
@@ -71,16 +85,21 @@ function App() {
     <>
       <section id="center">
         <div>
-          <h1 className="text-4xl font-bold underline">
-            Tailwind works!
-          </h1>
+          <ApplicationDashboard 
+            totalApplications={totalApplications} 
+            appliedApplications={appliedApplications} 
+            interviewApplications={interviewApplications} 
+            offerApplications={offerApplications}
+          />
           <ApplicationForm addApplication={addApplication} />
           <input
             type="text"
             placeholder="Search applications..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}></input>
-          <ApplicationList applications={filteredApplications} onEdit={onEdit} deleteApplication={deleteApplication} />
+            <div className="mt-6">
+              <ApplicationList applications={filteredApplications} onEdit={onEdit} deleteApplication={deleteApplication} />
+            </div>
           {selectedApplication && (
             <ApplicationEdit
               key={selectedApplication.id}
