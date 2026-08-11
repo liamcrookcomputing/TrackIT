@@ -18,6 +18,7 @@ function ApplicationForm({ addApplication, setAddApplicationRender }: { addAppli
         }
 
         addApplication(newApplication)
+        setAddApplicationRender(false)
     }
 
     const [showConfirmation, setShowConfirmation] = useState(false);
@@ -105,7 +106,10 @@ function ApplicationForm({ addApplication, setAddApplicationRender }: { addAppli
 
             {showConfirmation && <ConfirmationModal
                 message="Are you sure you want to cancel?"
-                onConfirm={() => setAddApplicationRender(false)}
+                onConfirm={() => {
+                    setAddApplicationRender(false); 
+                    setShowConfirmation(false);
+                }}
                 onCancel={() => setShowConfirmation(false)}
             />
             }

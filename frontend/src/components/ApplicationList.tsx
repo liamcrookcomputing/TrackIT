@@ -1,5 +1,4 @@
 import ApplicationCard from './ApplicationCard.tsx'
-import { useMemo } from 'react';
 import type { Application } from './ApplicationCard.tsx'
 
 
