@@ -1,5 +1,6 @@
 import { useState } from "react";
 import type { Application } from "./ApplicationCard";
+import ConfirmationModal from "./ConfirmationModal";
 
 function ApplicationEdit({ application, editApplication, cancelEdit }: 
     { application: Application, editApplication: (editedApplication: Application) => void, cancelEdit: () => void}) {
@@ -20,10 +21,12 @@ function ApplicationEdit({ application, editApplication, cancelEdit }:
         editApplication(newApplication)
     }
 
+    const [showConfirmation, setShowConfirmation] = useState(false);
+
     return (
-        <main 
+        <div 
             className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4"
-            onClick={cancelEdit}
+            onClick={() => setShowConfirmation(true)}
         >
             <form
                 onSubmit={handleSubmit}
@@ -100,7 +103,7 @@ function ApplicationEdit({ application, editApplication, cancelEdit }:
                 <div className="flex justify-end gap-2">
                     <button
                         type="button"
-                        onClick={cancelEdit}
+                        onClick={() => setShowConfirmation(true)}
                         className="rounded-lg border px-4 py-2 transition hover:bg-gray-100"
                     >
                         Cancel
@@ -114,7 +117,18 @@ function ApplicationEdit({ application, editApplication, cancelEdit }:
                     </button>
                 </div>
             </form>
-        </main>
+            
+            {showConfirmation && (
+                <ConfirmationModal
+                    message="Are you sure you want to cancel?"
+                    onConfirm={() => {
+                        cancelEdit();
+                        setShowConfirmation(false);
+                    }}
+                    onCancel={() => setShowConfirmation(false)}
+                />
+            )}
+        </div>
     )
 }
 

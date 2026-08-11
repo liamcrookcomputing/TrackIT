@@ -1,7 +1,8 @@
 import { useState } from "react";
 import type { Application } from "./ApplicationCard";
+import ConfirmationModal from "./ConfirmationModal";
 
-function ApplicationForm({ addApplication }: { addApplication: (newApplication: Application) => void }) {
+function ApplicationForm({ addApplication, setAddApplicationRender }: { addApplication: (newApplication: Application) => void; setAddApplicationRender: (value: boolean) => void }) {
     const [position, setPosition] = useState("")
     const [company, setCompany] = useState("")
     const [status, setStatus] = useState<Application["status"]>("Saved")
@@ -19,11 +20,17 @@ function ApplicationForm({ addApplication }: { addApplication: (newApplication: 
         addApplication(newApplication)
     }
 
+    const [showConfirmation, setShowConfirmation] = useState(false);
+
     return (
-        <main>
+        <div
+            className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4"
+            onClick={() => setShowConfirmation(true)}
+        >
             <form 
                 onSubmit={handleSubmit}
-                className="mx-auto flex maw-w-[500px] flex-col gap-4 rounded-xl border bg-white p-6 shadow-sm"
+                onClick={(e) => e.stopPropagation()}
+                className="flex w-full max-w-[500px] flex-col gap-4 rounded-xl bg-white p-6 shadow-xl"
             >
                 <div className="flex flex-col gap-1">
                     <label
@@ -87,9 +94,22 @@ function ApplicationForm({ addApplication }: { addApplication: (newApplication: 
                 >
                     Add Application
                 </button>
+                <button
+                    type="button"
+                    className="rounded-lg bg-gray-300 px-4 py-2 font-semibold text-gray-700 transition hover:bg-gray-400"
+                    onClick={() => setShowConfirmation(true)}
+                >
+                    Cancel
+                </button>
             </form>
-        </main>
+
+            {showConfirmation && <ConfirmationModal
+                message="Are you sure you want to cancel?"
+                onConfirm={() => setAddApplicationRender(false)}
+                onCancel={() => setShowConfirmation(false)}
+            />
+            }
+        </div>
     )
 }
-
 export default ApplicationForm

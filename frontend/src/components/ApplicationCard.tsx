@@ -5,6 +5,9 @@ export interface Application {
     status: "Saved" | "Applied" | "Interview" | "Technical Assessment" | "Final Interview" | "Offer" | "Rejected"
 }
 
+import { useState } from "react";
+import ConfirmationModal from "./ConfirmationModal";
+
 function ApplicationCard({ application, onEdit, deleteApplication }: 
     { application: Application, onEdit: (selectedApplication: Application) => void, deleteApplication: (deletedApplication: Application) => void}) {
     const statusStyles = {
@@ -17,9 +20,11 @@ function ApplicationCard({ application, onEdit, deleteApplication }:
         "Rejected": "border-red-300 bg-red-50 text-red-700"
     }
 
+    const [showConfirmation, setShowConfirmation] = useState(false);
+
     return (
-        <>
-            <div className={`m-4 max-w-[400px] rounded-xl border p-5 shadow-sm transition hover:shadow-md ${statusStyles[application.status]}`}>
+        <div className="relative">
+            <div className={`m-4 flex h-full max-w-[400px] flex-col rounded-xl border p-5 shadow-sm transition hover:shadow-md ${statusStyles[application.status]}`}>
                 <div className="flex items-start justify-between gap-4">
                     <div>
                         <p className="mt-0 text-xl font-bold">
@@ -36,7 +41,7 @@ function ApplicationCard({ application, onEdit, deleteApplication }:
                     </span>
                 </div>
 
-                <div className="mt-5 flex justify-end gap-2">
+                <div className="mt-auto flex justify-end gap-2 pt-5">
                     <button
                         type="button"
                         className="rounded-lg border bg-white px-3 py-1 text-sm hover:bg-gray-100"
@@ -48,17 +53,23 @@ function ApplicationCard({ application, onEdit, deleteApplication }:
                     <button
                         type="button"
                         className="rounded-lg bg-red-500 px-3 py-1 text-sm text-white hover:bg-red-600"
-                        onClick={() => {
-                            const answer = confirm("Are you sure?");
-                            if (answer) {
-                                deleteApplication(application);
-                            }
-                        }}>
+                        onClick={() => setShowConfirmation(true)}
+                    >
                         Delete
                     </button>
                 </div>
             </div>
-        </>
+            {showConfirmation && (
+                <ConfirmationModal
+                    message="Are you sure you want to delete this application?"
+                    onConfirm={() => {
+                        deleteApplication(application);
+                        setShowConfirmation(false);
+                    }}
+                    onCancel={() => setShowConfirmation(false)}
+                />
+            )}
+        </div>
     )
 }
 
