@@ -47,7 +47,7 @@ function ApplicationDashboard({
                     </p>
                 </div>
 
-                <div className="rounded-xl border border-green-300 bg-green-50 p-5 shadow-sm">
+                <div className="rounded-xl border border-green-500 bg-green-50 p-5 shadow-sm">
                     <p className="text-sm text-gray-500">
                         Offers
                     </p>

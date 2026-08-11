@@ -16,7 +16,7 @@ function ApplicationCard({ application, onEdit, deleteApplication }:
         "Interview": "border-yellow-300 bg-yellow-50 text-yellow-700",
         "Technical Assessment": "border-orange-300 bg-orange-50 text-orange-700",
         "Final Interview": "border-purple-300 bg-purple-50 text-purple-700",
-        "Offer": "border-green-300 bg-green-50 text-green-700",
+        "Offer": "border-green-500 bg-green-50 text-green-700",
         "Rejected": "border-red-300 bg-red-50 text-red-700"
     }
 
@@ -24,7 +24,7 @@ function ApplicationCard({ application, onEdit, deleteApplication }:
 
     return (
         <div className="relative">
-            <div className={`m-4 flex h-full max-w-[400px] flex-col rounded-xl border p-5 shadow-sm transition hover:shadow-md ${statusStyles[application.status]}`}>
+            <div className={`m-4 flex h-42 max-w-[300px] flex-col rounded-xl border p-5 shadow-sm transition hover:shadow-md ${statusStyles[application.status]}`}>
                 <div className="flex items-start justify-between gap-4">
                     <div>
                         <p className="mt-0 text-xl font-bold">
