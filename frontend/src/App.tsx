@@ -1,5 +1,5 @@
 import type { Application } from './components/ApplicationCard.tsx';
-import { useMemo, useState } from 'react';
+import { useMemo, useEffect, useState } from 'react';
 
 import ApplicationDashboard from './components/ApplicationDashboard.tsx';
 import ApplicationList from './components/ApplicationList.tsx';
@@ -7,26 +7,33 @@ import ApplicationForm from './components/ApplicationForm.tsx';
 import ApplicationEdit from './components/ApplicationEdit.tsx';
 
 function App() {
-    const [applications, setApplications] = useState<Application[]>([
-        {
-            id: 1,
-            position: "UI/UX Dev",
-            company: "Google",
-            status: "Applied"
-        },
-        {
-            id: 2,
-            position: "Software Engineer",
-            company: "Meta",
-            status: "Technical Assessment"
-        },
-        {
-            id: 3,
-            position: "Cybersecurity Junior",
-            company: "Cisco",
-            status: "Offer"
-        }
-    ]);
+    const [applications, setApplications] = useState<Application[]>([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState<string | null>(null)
+    useEffect(() => {
+        const fetchApplications = async () => {
+            try {
+                const response = await fetch(
+                    "http://localhost:3000/api/applications"
+                );
+
+                if (!response.ok) {
+                    throw new Error("Failed to fetch applications");
+                }
+
+                const data: Application[] = await response.json();
+
+                setApplications(data);
+            } catch (error) {
+                console.error(error);
+                setError("Failed to load applications");
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchApplications();
+    }, []);
 
     const [selectedApplication, setSelectedApplication] =
         useState<Application | null>(null);
@@ -64,18 +71,38 @@ function App() {
         setAddApplicationRender(!addApplicationRender);
     }
 
-    function addApplication(newApplication: Application) {
-        const applicationWithId = {
-            ...newApplication,
-            id: crypto.randomUUID()
-        };
+    async function addApplication(newApplication: Application) {
+        try {
+            const response = await fetch(
+                "http://localhost:3000/api/applications",
+                {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({
+                        position: newApplication.position,
+                        company: newApplication.company,
+                        status: newApplication.status
+                    })
+                }
+            );
 
-        setApplications([
-            ...applications,
-            applicationWithId
-        ]);
+            if (!response.ok) {
+                throw new Error("Failed to create application");
+            }
 
-        setAddApplicationRender(false);
+            const createdApplication: Application = await response.json();
+
+            setApplications((currentApplications) => [
+                ...currentApplications,
+                createdApplication
+            ]);
+
+            setAddApplicationRender(false);
+        } catch (error) {
+            console.error(error);
+        }
     }
 
 
@@ -142,7 +169,6 @@ function App() {
 
                 <section>
                     <div className="mb-4 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-
                         <h2 className="text-xl font-bold text-gray-900">
                             Applications
                         </h2>
@@ -156,18 +182,38 @@ function App() {
                         />
                     </div>
 
-                    <ApplicationList
-                        applications={filteredApplications}
-                        onEdit={onEdit}
-                        deleteApplication={deleteApplication}
-                    />
-
-                    {filteredApplications.length === 0 && (
+                    {loading && (
                         <div className="rounded-xl border bg-white p-8 text-center shadow-sm">
                             <p className="text-gray-500">
-                                No applications found.
+                                Loading applications...
                             </p>
                         </div>
+                    )}
+
+                    {error && (
+                        <div className="rounded-xl border border-red-200 bg-red-50 p-8 text-center shadow-sm">
+                            <p className="text-red-600">
+                                {error}
+                            </p>
+                        </div>
+                    )}
+
+                    {!loading && !error && (
+                        <>
+                            <ApplicationList
+                                applications={filteredApplications}
+                                onEdit={onEdit}
+                                deleteApplication={deleteApplication}
+                            />
+
+                            {filteredApplications.length === 0 && (
+                                <div className="rounded-xl border bg-white p-8 text-center shadow-sm">
+                                    <p className="text-gray-500">
+                                        No applications found.
+                                    </p>
+                                </div>
+                            )}
+                        </>
                     )}
                 </section>
             </div>
