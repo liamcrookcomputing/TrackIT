@@ -110,24 +110,65 @@ function App() {
         setSelectedApplication(selectedApplication);
     }
 
-    function editApplication(editedApplication: Application) {
-        const updatedApplication = applications.map((application) =>
-            editedApplication.id === application.id
-                ? editedApplication
+    async function editApplication(editedApplication: Application) {
+        try {
+            const response = await fetch (
+                `http://localhost:3000/api/applications/${editedApplication.id}`,
+                {
+                    method: "PATCH",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({
+                        position: editedApplication.position,
+                        company: editedApplication.company,
+                        status: editedApplication.status
+                    })
+                }
+            );
+
+            if (!response.ok) {
+                throw new Error("Failed to edit application")
+            }
+
+            const serverApplication: Application = await response.json();
+
+            const updatedApplication = applications.map((application) =>
+            serverApplication.id === application.id
+                ? serverApplication
                 : application
         );
 
         setApplications(updatedApplication);
         setSelectedApplication(null);
+
+        } catch (error) {
+            console.error(error)
+        }
     }
 
-    function deleteApplication(deletedApplication: Application) {
-        const updatedApplication = applications.filter(
-            (application) =>
-                application.id !== deletedApplication.id
-        );
+    async function deleteApplication(deletedApplication: Application) {
+        try {
+            const response = await fetch (
+                `http://localhost:3000/api/applications/${deletedApplication.id}`,
+                {
+                    method: "DELETE"
+                }
+            )
 
-        setApplications(updatedApplication);
+            if (!response.ok) {
+                throw new Error("Failed to delete application");
+            }
+
+            setApplications((currentApplications) =>
+                currentApplications.filter(
+                    (application) => application.id !== deletedApplication.id
+                )
+            );
+
+        } catch (error) {
+            console.error(error)
+        }
     }
 
     function cancelEdit() {

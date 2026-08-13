@@ -1,7 +1,7 @@
 import "dotenv/config";
 import cors from "cors";
 import express from "express";
-import { PrismaClient, ApplicationStatus } from "../generated/prisma/client.js";
+import { Prisma, PrismaClient, ApplicationStatus } from "../generated/prisma/client.js";
 import { PrismaPg } from "@prisma/adapter-pg";
 
 const app = express();
@@ -64,7 +64,12 @@ app.get("/api/applications", async (_req, res) => {
     try {
         const applications = await prisma.application.findMany();
 
-        res.json(applications);
+        const formattedApplications = applications.map((application) => ({
+            ...application,
+            status: statusFromPrisma[application.status]
+        }));
+
+        res.json(formattedApplications);
     } catch (error) {
         console.error(error);
 
@@ -111,6 +116,79 @@ app.post("/api/applications", async (req, res) => {
 
         return res.status(500).json({
             error: "Failed to create application"
+        });
+    }
+});
+
+app.patch("/api/applications/:id", async (req, res) => {
+    try {
+        const id = req.params.id;
+        const { position, company, status } = req.body;
+
+        if (!(status in statusToPrisma)) {
+            return res.status(400).json({
+                error: "Invalid application status"
+            });
+        }
+
+        const application = await prisma.application.update({
+            where: { id },
+            data: {
+                position,
+                company,
+                status: statusToPrisma[status as keyof typeof statusToPrisma]
+            }
+        });
+
+        const updatedApplication = {
+            ...application,
+            status: statusFromPrisma[application.status]
+        };
+
+        return res.status(200).json(updatedApplication);
+
+    } catch (error) {
+        console.error(error);
+
+        if (
+            error instanceof Prisma.PrismaClientKnownRequestError &&
+            error.code === "P2025"
+        ) {
+            return res.status(404).json({
+                error: "Failed to find application"
+            });
+        }
+
+        return res.status(500).json({
+            error: "Failed to update application"
+        });
+    }
+});
+
+app.delete("/api/applications/:id", async (req, res) => {
+    try {
+        const id = req.params.id;
+
+        const deletedApplication = await prisma.application.delete({
+            where: { id }
+        });
+
+        return res.status(200).json(deletedApplication);
+
+    } catch (error) {
+        console.error(error);
+
+        if (
+            error instanceof Prisma.PrismaClientKnownRequestError &&
+            error.code === "P2025"
+        ) {
+            return res.status(404).json({
+                error: "Failed to find application"
+            });
+        }
+
+        return res.status(500).json({
+            error: "Failed to delete application"
         });
     }
 });
