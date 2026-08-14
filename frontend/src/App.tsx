@@ -92,9 +92,13 @@ function App() {
                     }
                 );
 
+                console.log("ME RESPONSE:", response.status, response.url);
+
                 if (response.ok) {
+                    console.log("ME SAYS AUTHENTICATED");
                     setIsAuthenticated(true);
                 } else {
+                    console.log("ME SAYS NOT AUTHENTICATED");
                     setIsAuthenticated(false);
                 }
 
@@ -158,7 +162,7 @@ function App() {
     async function editApplication(editedApplication: Application) {
         try {
             const response = await fetch (
-                `http://localhost:3000/api/applications/${editedApplication.id}`,
+                `${API_URL}/api/applications/${editedApplication.id}`,
                 {
                     method: "PATCH",
                     credentials: "include",
@@ -196,7 +200,7 @@ function App() {
     async function deleteApplication(deletedApplication: Application) {
         try {
             const response = await fetch (
-                `http://localhost:3000/api/applications/${deletedApplication.id}`,
+                `${API_URL}/api/applications/${deletedApplication.id}`,
                 {
                     method: "DELETE",
                     credentials: "include"
@@ -242,6 +246,11 @@ function App() {
             console.error(error);
         }
     }
+
+    console.log("AUTH STATE:", {
+        isAuthenticated,
+        checkingAuth
+    });
 
     if (checkingAuth) {
         return (
