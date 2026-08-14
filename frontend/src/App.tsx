@@ -5,16 +5,29 @@ import ApplicationDashboard from './components/ApplicationDashboard.tsx';
 import ApplicationList from './components/ApplicationList.tsx';
 import ApplicationForm from './components/ApplicationForm.tsx';
 import ApplicationEdit from './components/ApplicationEdit.tsx';
+import LoginForm from './components/LoginForm.tsx'
+import RegisterForm from './components/RegisterForm.tsx';
 
 function App() {
+
+    const [isAuthenticated, setIsAuthenticated] = useState(false);
+    const [checkingAuth, setCheckingAuth] = useState(true);
+
     const [applications, setApplications] = useState<Application[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null)
     useEffect(() => {
+        if (!isAuthenticated) {
+            return;
+        }
+
         const fetchApplications = async () => {
             try {
                 const response = await fetch(
-                    "http://localhost:3000/api/applications"
+                    "http://localhost:3000/api/applications",
+                    {
+                        credentials: "include"
+                    }
                 );
 
                 if (!response.ok) {
@@ -33,7 +46,7 @@ function App() {
         };
 
         fetchApplications();
-    }, []);
+    }, [isAuthenticated]);
 
     const [selectedApplication, setSelectedApplication] =
         useState<Application | null>(null);
@@ -67,6 +80,35 @@ function App() {
 
     const [addApplicationRender, setAddApplicationRender] = useState(false);
 
+    useEffect(() => {
+        const checkAuth = async () => {
+            try {
+                const response = await fetch(
+                    "http://localhost:3000/api/me",
+                    {
+                        credentials: "include"
+                    }
+                );
+
+                if (response.ok) {
+                    setIsAuthenticated(true);
+                } else {
+                    setIsAuthenticated(false);
+                }
+
+            } catch (error) {
+                console.error(error);
+                setIsAuthenticated(false);
+            } finally {
+                setCheckingAuth(false);
+            }
+        };
+
+        checkAuth();
+    }, []);
+
+    const [authView, setAuthView] = useState<"login" | "register">("login");
+
     function renderAddApplication() {
         setAddApplicationRender(!addApplicationRender);
     }
@@ -77,6 +119,7 @@ function App() {
                 "http://localhost:3000/api/applications",
                 {
                     method: "POST",
+                    credentials: "include",
                     headers: {
                         "Content-Type": "application/json"
                     },
@@ -116,6 +159,7 @@ function App() {
                 `http://localhost:3000/api/applications/${editedApplication.id}`,
                 {
                     method: "PATCH",
+                    credentials: "include",
                     headers: {
                         "Content-Type": "application/json"
                     },
@@ -152,7 +196,8 @@ function App() {
             const response = await fetch (
                 `http://localhost:3000/api/applications/${deletedApplication.id}`,
                 {
-                    method: "DELETE"
+                    method: "DELETE",
+                    credentials: "include"
                 }
             )
 
@@ -175,17 +220,77 @@ function App() {
         setSelectedApplication(null);
     }
 
+    async function handleLogout() {
+        try {
+            const response = await fetch(
+                "http://localhost:3000/api/logout",
+                {
+                    method: "POST",
+                    credentials: "include"
+                }
+            );
+
+            if (!response.ok) {
+                throw new Error("Failed to log out");
+            }
+
+            setIsAuthenticated(false);
+            setApplications([]);
+        } catch (error) {
+            console.error(error);
+        }
+    }
+
+    if (checkingAuth) {
+        return (
+            <main className="flex min-h-screen items-center justify-center bg-gray-100">
+                <p className="text-gray-500">
+                    Checking authentication...
+                </p>
+            </main>
+        );
+    }
+
+    if (!isAuthenticated) {
+        if (authView === "login") {
+            return (
+                <LoginForm
+                    onLogin={() => setIsAuthenticated(true)}
+                    onRegister={() => setAuthView("register")}
+                />
+            );
+        }
+
+        return (
+            <RegisterForm
+                onRegister={() => setIsAuthenticated(true)}
+                onLogin={() => setAuthView("login")}
+            />
+        );
+    }
+
     return (
         <main className="min-h-screen bg-gray-100 px-4 py-8">
             <div className="mx-auto flex max-w-6xl flex-col gap-8">
 
-                <header>
-                    <h1 className="text-3xl font-bold text-gray-900">
-                        TrackIT
-                    </h1>
-                    <p className="mt-1 text-gray-500">
-                        Track and manage your job applications.
-                    </p>
+                <header className="flex items-center justify-between">
+                    <div>
+                        <h1 className="text-3xl font-bold text-gray-900">
+                            TrackIT
+                        </h1>
+
+                        <p className="mt-1 text-gray-500">
+                            Track and manage your job applications.
+                        </p>
+                    </div>
+
+                    <button
+                        type="button"
+                        onClick={handleLogout}
+                        className="rounded-lg bg-red-500 px-4 py-2 text-white hover:bg-red-600"
+                    >
+                        Logout
+                    </button>
                 </header>
 
                 <ApplicationDashboard

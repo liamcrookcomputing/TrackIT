@@ -2,14 +2,14 @@ import ApplicationCard from "./ApplicationCard.tsx";
 import type { Application } from "./ApplicationCard.tsx";
 
 function ApplicationList({
-    applications,
-    onEdit,
-    deleteApplication
-}: {
-    applications: Application[];
-    onEdit: (selectedApplication: Application) => void;
-    deleteApplication: (deletedApplication: Application) => void;
-}) {
+        applications,
+        onEdit,
+        deleteApplication
+    }: {
+        applications: Application[];
+        onEdit: (selectedApplication: Application) => void;
+        deleteApplication: (deletedApplication: Application) => void;
+    }) {
     const statuses: Application["status"][] = [
         "Saved",
         "Applied",
