@@ -10,6 +10,8 @@ import RegisterForm from './components/RegisterForm.tsx';
 
 function App() {
 
+    const API_URL = import.meta.env.VITE_API_URL;
+
     const [isAuthenticated, setIsAuthenticated] = useState(false);
     const [checkingAuth, setCheckingAuth] = useState(true);
 
@@ -24,7 +26,7 @@ function App() {
         const fetchApplications = async () => {
             try {
                 const response = await fetch(
-                    "http://localhost:3000/api/applications",
+                    `${API_URL}/api/applications`,
                     {
                         credentials: "include"
                     }
@@ -84,7 +86,7 @@ function App() {
         const checkAuth = async () => {
             try {
                 const response = await fetch(
-                    "http://localhost:3000/api/me",
+                    `${API_URL}/api/me`,
                     {
                         credentials: "include"
                     }
@@ -116,7 +118,7 @@ function App() {
     async function addApplication(newApplication: Application) {
         try {
             const response = await fetch(
-                "http://localhost:3000/api/applications",
+                `${API_URL}/api/applications`,
                 {
                     method: "POST",
                     credentials: "include",
@@ -223,7 +225,7 @@ function App() {
     async function handleLogout() {
         try {
             const response = await fetch(
-                "http://localhost:3000/api/logout",
+                `${API_URL}/api/logout`,
                 {
                     method: "POST",
                     credentials: "include"

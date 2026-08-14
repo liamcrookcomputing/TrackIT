@@ -274,6 +274,8 @@ app.post("/api/register", async (req, res) => {
             }
         });
 
+        req.session.userId = user.id;
+
         const publicUser = {
             id: user.id,
             email: user.email
