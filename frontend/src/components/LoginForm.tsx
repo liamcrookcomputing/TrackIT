@@ -2,10 +2,12 @@ import { useState } from "react";
 
 function LoginForm({
         onLogin,
-        onRegister
+        onRegister,
+        onClose
     }: {
         onLogin: () => void;
         onRegister: () => void;
+        onClose: () => void;
     }) {
 
     const API_URL = import.meta.env.VITE_API_URL;
@@ -55,7 +57,10 @@ function LoginForm({
     }
 
     return (
-        <main className="flex min-h-screen items-center justify-center bg-gray-100 px-4">
+        <main 
+            className="flex min-h-screen items-center justify-center bg-gray-100 px-4"
+            onClick={onClose}
+        >
             <form
                 onSubmit={handleSubmit}
                 className="w-full max-w-md rounded-xl border bg-white p-8 shadow-sm"

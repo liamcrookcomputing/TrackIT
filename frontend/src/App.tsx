@@ -114,7 +114,7 @@ function App() {
         checkAuth();
     }, []);
 
-    const [authView, setAuthView] = useState<"login" | "register">("login");
+    const [authView, setAuthView] = useState<"login" | "register" | null>(null);
 
     function renderAddApplication() {
         setAddApplicationRender(!addApplicationRender);
@@ -265,10 +265,34 @@ function App() {
 
     if (!isAuthenticated) {
         return (
-            <LandingPage
-                onLogin={() => setAuthView("login")}
-                onRegister={() => setAuthView("register")}
-            />
+            <>
+                <LandingPage
+                    onLogin={() => setAuthView("login")}
+                    onRegister={() => setAuthView("register")}
+                />
+
+                {authView === "login" && (
+                    <LoginForm
+                        onLogin={() => {
+                            setIsAuthenticated(true);
+                            setAuthView(null);
+                        }}
+                        onRegister={() => setAuthView("register")}
+                        onClose={() => setAuthView(null)}
+                    />
+                )}
+
+                {authView === "register" && (
+                    <RegisterForm
+                        onRegister={() => {
+                            setIsAuthenticated(true);
+                            setAuthView(null);
+                        }}
+                        onLogin={() => setAuthView("login")}
+                        onClose={() => setAuthView(null)}
+                    />
+                )}
+            </>
         );
     }
 
