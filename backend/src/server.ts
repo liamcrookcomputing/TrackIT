@@ -16,6 +16,7 @@ const sessionStore = new PgSession({
 })
 
 const app = express();
+app.set('trust proxy', 1);
 app.use(cors({
     origin: "https://track-it-umber-phi.vercel.app",
     credentials: true
