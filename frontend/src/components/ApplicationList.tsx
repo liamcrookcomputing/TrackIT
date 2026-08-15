@@ -21,13 +21,13 @@ function ApplicationList({
     ];
 
     const statusStyles = {
-        "Saved": "border-gray-300 bg-gray-50",
-        "Applied": "border-blue-300 bg-blue-50/40",
-        "Interview": "border-yellow-300 bg-yellow-50/40",
-        "Technical Assessment": "border-orange-300 bg-orange-50/40",
-        "Final Interview": "border-purple-300 bg-purple-50/40",
-        "Offer": "border-green-500 bg-green-50/40",
-        "Rejected": "border-red-300 bg-red-50/40"
+        "Saved": "border-gray-300 bg-gray-100 text-gray-700",
+        "Applied": "border-blue-300 bg-blue-100 text-blue-700",
+        "Interview": "border-yellow-300 bg-yellow-100 text-yellow-700",
+        "Technical Assessment": "border-orange-300 bg-orange-100 text-orange-700",
+        "Final Interview": "border-purple-300 bg-purple-100 text-purple-700",
+        "Offer": "border-green-500 bg-green-150 text-green-700",
+        "Rejected": "border-red-300 bg-red-100 text-red-700"
     };
 
     return (

@@ -2,6 +2,10 @@
 
 A self-hosted job application tracker designed to help job seekers organise, manage, and analyse their job search.
 
+**[Live Demo →](https://track-it-umber-phi.vercel.app)**
+
+Try it instantly with the interactive demo on the landing page (uses temporary local mock data, no account needed), or register a free account to save your own applications.
+
 ## Overview
 
 TrackIT is an open-source application designed to simplify the process of tracking job applications.
@@ -29,17 +33,14 @@ This project focuses on:
 
 ### Application Management
 
-- Create and manage job applications
-- Track application progress
-- Store company information
-- Store job descriptions and links
-- Add notes and important dates
+- Create, edit, and delete job applications
+- Track application status through the hiring pipeline
+- Store company and position information
+- Search and filter applications by company or position
 
 ### Application Pipeline
 
-Visualise applications using a Kanban-style workflow.
-
-Example stages:
+Applications are grouped by status, covering the full pipeline:
 
 - Saved
 - Applied
@@ -49,24 +50,30 @@ Example stages:
 - Offer
 - Rejected
 
-### Documents
+> Note: applications are currently grouped into horizontal rows by status rather than side-by-side kanban columns, a deliberate choice favouring easier scrolling through applications within a stage over comparing pipeline shape at a glance.
 
-- Store resume versions
-- Associate resumes and cover letters with applications
-- Track documents used for specific applications
+### Dashboard
 
-### Analytics Dashboard
+- At-a-glance stats: total applications, applied, interviews, offers
 
-- Application statistics
-- Interview conversion rates
-- Response rates
-- Job search progress tracking
+### Authentication
 
-### Reminders
+- Secure account registration and login (bcrypt password hashing)
+- Server-side sessions, so every user only ever sees their own data
 
-- Follow-up reminders
-- Interview scheduling
-- Important deadlines
+### Interactive Demo
+
+- A fully interactive, no-signup-required demo on the landing page, using local mock data, so visitors can try the app before creating an account
+
+## Planned Features
+
+The following are on the roadmap but not yet implemented:
+
+- Document management (resume/cover letter storage per application)
+- Tags and notes on individual applications
+- Follow-up and interview reminders
+- Calendar integration
+- Interview conversion / response rate analytics (beyond the current raw counts)
 
 ## Technology Stack
 
@@ -81,10 +88,12 @@ Example stages:
 
 - Node.js
 - Express
+- express-session + connect-pg-simple (server-side sessions)
+- bcrypt (password hashing)
 
 ### Database
 
-- PostgreSQL
+- PostgreSQL (Neon in production)
 
 ### Database Management
 
@@ -92,30 +101,73 @@ Example stages:
 
 ### Infrastructure
 
-- Docker
-- Cloud hosting platform (to be decided)
+- Docker / Docker Compose (local development)
+- Render (backend hosting)
+- Vercel (frontend hosting)
+- Neon (hosted Postgres)
+
+## Getting Started
+
+### Prerequisites
+
+- Node.js
+- Docker Desktop
+
+### Local Development
+
+1. Clone the repo
+
+   ```bash
+   git clone https://github.com/liamcrookcomputing/TrackIT.git
+   cd TrackIT
+   ```
+
+2. Start the local database
+
+   ```bash
+   docker compose up -d
+   ```
+
+3. Set up the backend
+
+   ```bash
+   cd backend
+   cp .env.example .env   # fill in your local DB credentials + a session secret
+   npm install
+   npx prisma migrate dev
+   npm run dev
+   ```
+
+4. Set up the frontend
+
+   ```bash
+   cd ../frontend
+   cp .env.example .env   # point VITE_API_URL at your local backend
+   npm install
+   npm run dev
+   ```
 
 ## Project Roadmap
 
 ## Phase 1 - Foundation
 
-- [ ] Create project structure
-- [ ] Configure frontend application
-- [ ] Configure backend application
-- [ ] Setup database environment
-- [ ] Create initial documentation
+- [x] Create project structure
+- [x] Configure frontend application
+- [x] Configure backend application
+- [x] Setup database environment
+- [x] Create initial documentation
 
 ## Phase 2 - Core Application
 
-- [ ] User authentication
-- [ ] Create job applications
-- [ ] Update application status
-- [ ] View application dashboard
+- [x] User authentication
+- [x] Create job applications
+- [x] Update application status
+- [x] View application dashboard
 
 ## Phase 3 - Productivity Features
 
-- [ ] Kanban application pipeline
-- [ ] Search and filtering
+- [x] Kanban-style application pipeline (grouped rows by status)
+- [x] Search and filtering
 - [ ] Tags
 - [ ] Notes
 - [ ] Reminders
@@ -123,7 +175,7 @@ Example stages:
 ## Phase 4 - Advanced Features
 
 - [ ] Document management
-- [ ] Analytics dashboard
+- [x] Analytics dashboard (basic stats; conversion/response rates not yet calculated)
 - [ ] Calendar integration
 - [ ] Notifications
 
