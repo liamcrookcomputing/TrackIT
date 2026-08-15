@@ -17,7 +17,7 @@ const sessionStore = new PgSession({
 
 const app = express();
 app.use(cors({
-    origin: "http://localhost:5173",
+    origin: "track-krv6g0fh2-moonpersonal.vercel.app",
     credentials: true
 }));
 app.use(express.json());
