@@ -17,7 +17,7 @@ function ApplicationDashboard({
 
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
                 
-                <div className="rounded-xl border border-gray-300 bg-gray-50 p-5 shadow-sm">
+                <div className="rounded-xl border border-gray-300 bg-gray-100 p-5 shadow-sm">
                     <p className="text-sm text-gray-500">
                         Total Applications
                     </p>
@@ -27,7 +27,7 @@ function ApplicationDashboard({
                     </p>
                 </div>
 
-                <div className="rounded-xl border border-blue-300 bg-blue-50 p-5 shadow-sm">
+                <div className="rounded-xl border border-blue-300 bg-blue-100 p-5 shadow-sm">
                     <p className="text-sm text-gray-500">
                         Applied
                     </p>
@@ -47,7 +47,7 @@ function ApplicationDashboard({
                     </p>
                 </div>
 
-                <div className="rounded-xl border border-green-500 bg-green-50 p-5 shadow-sm">
+                <div className="rounded-xl border border-green-400 bg-green-100 p-5 shadow-sm">
                     <p className="text-sm text-gray-500">
                         Offers
                     </p>
