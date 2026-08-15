@@ -25,7 +25,12 @@ app.use(session({
     secret: process.env.SESSION_SECRET!,
     resave: false,
     saveUninitialized: false,
-    store: sessionStore
+    store: sessionStore,
+    cookie: {
+        secure: true,
+        httpOnly: true,
+        sameSite: "none"
+    }
 }))
 
 // MIDDLEWARE
