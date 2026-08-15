@@ -7,6 +7,7 @@ import ApplicationForm from './components/ApplicationForm.tsx';
 import ApplicationEdit from './components/ApplicationEdit.tsx';
 import LoginForm from './components/LoginForm.tsx'
 import RegisterForm from './components/RegisterForm.tsx';
+import LandingPage from "./components/LandingPage.tsx";
 
 function App() {
 
@@ -263,19 +264,10 @@ function App() {
     }
 
     if (!isAuthenticated) {
-        if (authView === "login") {
-            return (
-                <LoginForm
-                    onLogin={() => setIsAuthenticated(true)}
-                    onRegister={() => setAuthView("register")}
-                />
-            );
-        }
-
         return (
-            <RegisterForm
-                onRegister={() => setIsAuthenticated(true)}
+            <LandingPage
                 onLogin={() => setAuthView("login")}
+                onRegister={() => setAuthView("register")}
             />
         );
     }
