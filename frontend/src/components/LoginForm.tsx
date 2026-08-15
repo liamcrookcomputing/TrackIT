@@ -63,6 +63,7 @@ function LoginForm({
         >
             <form
                 onSubmit={handleSubmit}
+                onClick={(e) => e.stopPropagation()}
                 className="w-full max-w-md rounded-xl border bg-white p-8 shadow-sm"
             >
                 <h1 className="text-3xl font-bold text-gray-900">
