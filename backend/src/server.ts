@@ -17,7 +17,7 @@ const sessionStore = new PgSession({
 
 const app = express();
 app.use(cors({
-    origin: "track-krv6g0fh2-moonpersonal.vercel.app",
+    origin: "https://track-it-umber-phi.vercel.app",
     credentials: true
 }));
 app.use(express.json());
