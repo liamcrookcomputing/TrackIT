@@ -7,6 +7,9 @@ function RegisterForm({
         onRegister: () => void;
         onLogin: () => void;
     }) {
+
+    const API_URL = import.meta.env.VITE_API_URL;
+    
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [error, setError] = useState<string | null>(null);
@@ -20,7 +23,7 @@ function RegisterForm({
 
         try {
             const response = await fetch(
-                "http://localhost:3000/api/register",
+                `${API_URL}/api/register`,
                 {
                     method: "POST",
                     credentials: "include",

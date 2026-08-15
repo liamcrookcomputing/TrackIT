@@ -7,6 +7,9 @@ function LoginForm({
         onLogin: () => void;
         onRegister: () => void;
     }) {
+
+    const API_URL = import.meta.env.VITE_API_URL;
+    
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [error, setError] = useState<string | null>(null);
@@ -20,7 +23,7 @@ function LoginForm({
 
         try {
             const response = await fetch(
-                "http://localhost:3000/api/login",
+                `${API_URL}/api/login`,
                 {
                     method: "POST",
                     credentials: "include",
