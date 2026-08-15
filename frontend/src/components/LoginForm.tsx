@@ -58,7 +58,7 @@ function LoginForm({
 
     return (
         <main 
-            className="flex min-h-screen items-center justify-center bg-gray-100 px-4"
+            className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 px-4"
             onClick={onClose}
         >
             <form
