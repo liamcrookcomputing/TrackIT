@@ -18,21 +18,26 @@ const sessionStore = new PgSession({
 const app = express();
 app.set('trust proxy', 1);
 app.use(cors({
-    origin: "https://track-it-umber-phi.vercel.app",
+    origin: [
+        "http://localhost:5173",
+        "https://track-it-umber-phi.vercel.app"
+    ],
     credentials: true
 }));
 app.use(express.json());
+
+const isProduction = process.env.NODE_ENV === "production";
 app.use(session({
     secret: process.env.SESSION_SECRET!,
     resave: false,
     saveUninitialized: false,
     store: sessionStore,
     cookie: {
-        secure: true,
+        secure: isProduction,
         httpOnly: true,
-        sameSite: "none"
+        sameSite: isProduction ? "none" : "lax"
     }
-}))
+}));
 
 // MIDDLEWARE
 function requireAuth(
@@ -138,7 +143,6 @@ app.get("/api/applications", async (req, res) => {
 app.post("/api/applications", async (req, res) => {
     try {
         const userId = getUserId(req);
-
         const { position, company, status } = req.body;
 
         if (!position || !company || !status) {
@@ -153,18 +157,32 @@ app.post("/api/applications", async (req, res) => {
             });
         }
 
-        const application = await prisma.application.create({
-            data: {
-                position,
-                company,
-                status: statusToPrisma[status as keyof typeof statusToPrisma],
-                userId
-            }
+        const prismaStatus =
+            statusToPrisma[status as keyof typeof statusToPrisma];
+
+        const result = await prisma.$transaction(async (tx) => {
+            const application = await tx.application.create({
+                data: {
+                    position,
+                    company,
+                    status: prismaStatus,
+                    userId
+                }
+            });
+
+            await tx.applicationEvent.create({
+                data: {
+                    applicationId: application.id,
+                    status: prismaStatus
+                }
+            });
+
+            return application;
         });
 
         const formattedApplication = {
-            ...application,
-            status: statusFromPrisma[application.status]
+            ...result,
+            status: statusFromPrisma[result.status]
         };
 
         return res.status(201).json(formattedApplication);
@@ -185,31 +203,81 @@ app.patch("/api/applications/:id", async (req, res) => {
 
         const { position, company, status } = req.body;
 
-        if (!(status in statusToPrisma)) {
-            return res.status(400).json({
-                error: "Invalid application status"
+        //get current application status
+        const application = await prisma.application.findFirst({
+            where: {
+                id,
+                userId
+            }
+        });
+
+        if (!application) {
+            return res.status(404).json({
+                error: "Failed to find application"
             });
         }
 
-        const application = await prisma.application.update({
+        if (status !== undefined) {
+            if (!(status in statusToPrisma)) {
+                return res.status(400).json({
+                    error: "Invalid application status"
+                });
+            }
+
+            const newStatus = statusToPrisma[status as keyof typeof statusToPrisma];
+            const statusChanged = application.status !== newStatus;
+
+            // if status changed, update and create event
+            if (statusChanged) {
+                const updatedApplication = await prisma.$transaction(
+                    async (tx) => {
+                        const updatedApplication =
+                            await tx.application.update({
+                                where: {
+                                    id,
+                                    userId
+                                },
+                                data: {
+                                    position,
+                                    company,
+                                    status: newStatus
+                                }
+                            });
+
+                        await tx.applicationEvent.create({
+                            data: {
+                                applicationId: application.id,
+                                status: newStatus
+                            }
+                        });
+
+                        return updatedApplication;
+                    }
+                );
+
+                return res.status(200).json({
+                    ...updatedApplication,
+                    status: statusFromPrisma[updatedApplication.status]
+                });
+            }
+        }
+
+        // else update application only
+        const updatedApplication = await prisma.application.update({
             where: {
                 id,
                 userId
             },
             data: {
                 position,
-                company,
-                status: statusToPrisma[status as keyof typeof statusToPrisma]
+                company
             }
         });
 
-        const updatedApplication = {
-            ...application,
-            status: statusFromPrisma[application.status]
-        };
-
-        return res.status(200).json(updatedApplication);
-
+        return res.status(200).json({
+            ...updatedApplication,
+            status: statusFromPrisma[updatedApplication.status]
+        });
     } catch (error) {
         console.error(error);
 
@@ -295,12 +363,21 @@ app.post("/api/register", async (req, res) => {
 
         req.session.userId = user.id;
 
-        const publicUser = {
-            id: user.id,
-            email: user.email
-        };
+        req.session.save((error) => {
+            if (error) {
+                console.error(error);
+                return res.status(500).json({
+                    error: "Failed to create session"
+                });
+            }
 
-        return res.status(201).json(publicUser);
+            const publicUser = {
+                id: user.id,
+                email: user.email
+            };
+
+            return res.status(201).json(publicUser);
+        });
 
     } catch (error) {
         console.error(error);
@@ -353,12 +430,21 @@ app.post("/api/login", async (req, res) => {
 
         req.session.userId = user.id;
 
-        const loggedUser = {
-            id: user.id,
-            email: user.email
-        }
+        req.session.save((error) => {
+            if (error) {
+                console.error(error);
+                return res.status(500).json({
+                    error: "Failed to create session"
+                });
+            }
 
-        return res.status(200).json(loggedUser)
+            const loggedUser = {
+                id: user.id,
+                email: user.email
+            }
+
+            return res.status(200).json(loggedUser);
+        });
         
     } catch (error) {
         return res.status(500).json({

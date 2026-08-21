@@ -255,9 +255,12 @@ function App() {
 
     if (checkingAuth) {
         return (
-            <main className="flex min-h-screen items-center justify-center bg-gray-100">
+            <main className="flex min-h-screen flex-col items-center justify-center gap-1 bg-gray-100">
                 <p className="text-gray-500">
-                    Checking authentication...
+                    Loading...
+                </p>
+                <p className="text-gray-300">
+                    This may take a little longer than usual on the first load.
                 </p>
             </main>
         );
