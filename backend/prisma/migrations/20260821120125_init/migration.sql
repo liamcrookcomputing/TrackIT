@@ -7,6 +7,7 @@ CREATE TABLE "User" (
     "email" TEXT NOT NULL,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
+    "passwordHash" TEXT NOT NULL,
 
     CONSTRAINT "User_pkey" PRIMARY KEY ("id")
 );
@@ -22,6 +23,15 @@ CREATE TABLE "Application" (
     "updatedAt" TIMESTAMP(3) NOT NULL,
 
     CONSTRAINT "Application_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "session" (
+    "sid" VARCHAR NOT NULL,
+    "sess" JSON NOT NULL,
+    "expire" TIMESTAMP(6) NOT NULL,
+
+    CONSTRAINT "session_pkey" PRIMARY KEY ("sid")
 );
 
 -- CreateIndex
