@@ -1,9 +1,11 @@
 import { useMemo, useState } from "react";
 import type { Application } from "./ApplicationCard";
+import type { ApplicationStatusCount } from "../types/analytics";
 import ApplicationDashboard from "./ApplicationDashboard";
 import ApplicationList from "./ApplicationList";
 import ApplicationForm from "./ApplicationForm";
 import ApplicationEdit from "./ApplicationEdit";
+
 
 function LandingPage({
     onLogin,
@@ -49,23 +51,22 @@ function LandingPage({
         );
     }, [applications, search]);
 
-    const totalApplications = applications.length;
-
-    const appliedApplications = applications.filter(
-        application => application.status === "Applied"
-    ).length;
-
-    const interviewApplications =
-        applications.filter(
-            application => application.status === "Interview"
-        ).length +
-        applications.filter(
-            application => application.status === "Final Interview"
-        ).length;
-
-    const offerApplications = applications.filter(
-        application => application.status === "Offer"
-    ).length;
+    const applicationStatuses: ApplicationStatusCount[] = [
+        "Saved",
+        "Applied",
+        "Interview",
+        "Technical Assessment",
+        "Final Interview",
+        "Offer",
+        "Rejected"
+    ].map((status) => ({
+        status,
+        _count: {
+            _all: applications.filter(
+                application => application.status === status
+            ).length
+        }
+    }));
 
     function addApplication(newApplication: Application) {
         setApplications((currentApplications) => [
@@ -149,10 +150,7 @@ function LandingPage({
                     <div className="rounded-2xl border bg-white p-6 shadow-sm">
 
                         <ApplicationDashboard
-                            totalApplications={totalApplications}
-                            appliedApplications={appliedApplications}
-                            interviewApplications={interviewApplications}
-                            offerApplications={offerApplications}
+                            applicationStatuses={applicationStatuses}
                         />
 
                         <section className="mt-8">

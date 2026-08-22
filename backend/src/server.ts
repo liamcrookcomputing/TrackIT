@@ -1,6 +1,6 @@
 import "dotenv/config";
 import cors from "cors";
-import express from "express";
+import express, { application } from "express";
 import type { Request, Response, NextFunction } from "express";
 import bcrypt from "bcrypt";
 import session from "express-session";
@@ -63,6 +63,7 @@ function getUserId(req: Request): string {
 }
 
 app.use("/api/applications", requireAuth);
+app.use("/api/analytics", requireAuth);
 
 const adapter = new PrismaPg({
     connectionString: process.env.DATABASE_URL
@@ -201,7 +202,7 @@ app.patch("/api/applications/:id", async (req, res) => {
         const id = req.params.id;
         const userId = getUserId(req);
 
-        const { position, company, status } = req.body;
+        const { position, company, status, reason } = req.body;
 
         //get current application status
         const application = await prisma.application.findFirst({
@@ -247,7 +248,10 @@ app.patch("/api/applications/:id", async (req, res) => {
                         await tx.applicationEvent.create({
                             data: {
                                 applicationId: application.id,
-                                status: newStatus
+                                status: newStatus,
+                                reason: newStatus === ApplicationStatus.Rejected
+                                    ? reason ?? null
+                                    : null
                             }
                         });
 
@@ -498,6 +502,37 @@ app.get("/api/me", async (req, res) => {
 
         return res.status(500).json({
             error: "Failed to check authenitcation"
+        });
+    }
+});
+
+app.get("/api/analytics", async (req, res) => {
+    try {
+        const userId = getUserId(req);
+
+        const totalApplications = await prisma.application.count({
+            where: {
+                userId
+            }
+        });
+
+        const applicationStatuses = await prisma.application.groupBy({
+            where: { 
+                userId 
+            },
+            by: ['status'],
+            _count: { 
+                _all: true 
+            }
+        });
+
+        return res.status(200).json(applicationStatuses);
+
+    } catch (error) {
+        console.error(error);
+
+        return res.status(500).json({
+            error: "Failed to check authentication"
         });
     }
 });

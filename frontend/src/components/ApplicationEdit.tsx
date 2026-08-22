@@ -7,6 +7,17 @@ function ApplicationEdit({ application, editApplication, cancelEdit }:
     const [position, setPosition] = useState(application.position)
     const [company, setCompany] = useState(application.company)
     const [status, setStatus] = useState<Application["status"]>(application.status)
+    const [rejectionReason, setRejectionReason] = useState<string | null>(null)
+    const rejectionReasons = [
+        "No response",
+        "Resume screening",
+        "Experience mismatch",
+        "Technical assessment",
+        "Interview",
+        "Position filled",
+        "Salary",
+        "Other"
+    ];
 
     const handleSubmit = (e: React.SubmitEvent<HTMLFormElement>) => {
         e.preventDefault();
@@ -16,6 +27,7 @@ function ApplicationEdit({ application, editApplication, cancelEdit }:
             position: position,
             company: company,
             status: status,
+            rejectionReason: status === "Rejected" ? rejectionReason : undefined,
         }
 
         editApplication(newApplication)
@@ -31,9 +43,9 @@ function ApplicationEdit({ application, editApplication, cancelEdit }:
             <form
                 onSubmit={handleSubmit}
                 onClick={(e) => e.stopPropagation()}
-                className="flex w-full max-w-[500px] flex-col gap-4 rounded-xl bg-white p-6 shadow-xl"
+                className="flex w-full max-w-125 flex-col gap-4 rounded-xl bg-white p-6 shadow-xl"
             >
-                <h2 className="text-2xl font-bold !text-black">
+                <h2 className="text-2xl font-bold text-black!">
                     Edit Application
                 </h2>
 
@@ -99,6 +111,38 @@ function ApplicationEdit({ application, editApplication, cancelEdit }:
                         <option value="Rejected">Rejected</option>
                     </select>
                 </div>
+
+                {status === "Rejected" && (
+                    <div className="flex flex-col gap-1">
+                        <label
+                            htmlFor="rejectionReason"
+                            className="text-sm font-semibold text-gray-700"
+                        >
+                            REJECTION REASON <span className="font-normal text-gray-500">(OPTIONAL)</span>
+                        </label>
+
+                        <select
+                            id="rejectionReason"
+                            value={rejectionReason ?? ""}
+                            onChange={(e) =>
+                                setRejectionReason(
+                                    e.target.value === "" ? null : e.target.value
+                                )
+                            }
+                            className="rounded-lg border bg-white px-3 py-2 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
+                        >
+                            <option value="">Skip</option>
+
+                            {rejectionReasons.map((reason) => (
+                                <option key={reason} value={reason}>
+                                    {reason}
+                                </option>
+                            ))}
+                        </select>
+                    </div>
+                    )
+                    
+                }
 
                 <div className="flex justify-end gap-2">
                     <button

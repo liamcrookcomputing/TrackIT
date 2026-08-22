@@ -1,4 +1,5 @@
 import type { Application } from './components/ApplicationCard.tsx';
+import type { ApplicationStatusCount } from './types/analytics';
 import { useMemo, useEffect, useState } from 'react';
 
 import ApplicationDashboard from './components/ApplicationDashboard.tsx';
@@ -7,7 +8,7 @@ import ApplicationForm from './components/ApplicationForm.tsx';
 import ApplicationEdit from './components/ApplicationEdit.tsx';
 import LoginForm from './components/LoginForm.tsx'
 import RegisterForm from './components/RegisterForm.tsx';
-import LandingPage from "./components/LandingPage.tsx";
+import LandingPage from './components/LandingPage.tsx';
 
 function App() {
 
@@ -17,6 +18,9 @@ function App() {
     const [checkingAuth, setCheckingAuth] = useState(true);
 
     const [applications, setApplications] = useState<Application[]>([]);
+
+    const [applicationStatuses, setApplicationStatuses] = useState<ApplicationStatusCount[]>([]);
+
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null)
     useEffect(() => {
@@ -48,7 +52,32 @@ function App() {
             }
         };
 
+        const fetchApplicationStatuses = async () => {
+            try {
+                const response = await fetch(
+                    `${API_URL}/api/analytics`,
+                    {
+                        credentials: "include"
+                    }
+                );
+
+                if (!response.ok) {
+                    throw new Error("Failed to fetch application statuses");
+                }
+
+                const data: ApplicationStatusCount[] = await response.json();
+
+                setApplicationStatuses(data);
+            } catch (error) {
+                console.error(error);
+                setError("Failed to load application statuses");
+            } finally {
+                setLoading(false);
+            }
+        }
+
         fetchApplications();
+        fetchApplicationStatuses();
     }, [isAuthenticated]);
 
     const [selectedApplication, setSelectedApplication] =
@@ -62,24 +91,6 @@ function App() {
             application.position.toLowerCase().includes(search.toLowerCase())
         );
     }, [applications, search]);
-
-    const totalApplications = applications.length;
-
-    const appliedApplications = applications.filter(
-        application => application.status === "Applied"
-    ).length;
-
-    const interviewApplications =
-        applications.filter(
-            application => application.status === "Interview"
-        ).length +
-        applications.filter(
-            application => application.status === "Final Interview"
-        ).length;
-
-    const offerApplications = applications.filter(
-        application => application.status === "Offer"
-    ).length;
 
     const [addApplicationRender, setAddApplicationRender] = useState(false);
 
@@ -324,10 +335,7 @@ function App() {
                 </header>
 
                 <ApplicationDashboard
-                    totalApplications={totalApplications}
-                    appliedApplications={appliedApplications}
-                    interviewApplications={interviewApplications}
-                    offerApplications={offerApplications}
+                    applicationStatuses={applicationStatuses}
                 />
 
                 <section>
