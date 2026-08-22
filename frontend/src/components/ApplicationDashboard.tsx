@@ -1,26 +1,27 @@
-import type { ApplicationStatusCount } from "../types/analytics";
+import type { Analytics } from "../types/analytics";
 
 function ApplicationDashboard({
-    applicationStatuses
+    analytics
 }: {
-    applicationStatuses: ApplicationStatusCount[];
+    analytics: Analytics | null;
 }) {
+
+    if (!analytics) {
+        return null;
+    }
+
+    const applicationStatuses = analytics.applicationStatuses;
 
     function getStatusCount(status: string) {
         return applicationStatuses.find(
             application => application.status === status
         )?._count._all ?? 0;
     }
-
-    const totalApplications = applicationStatuses.reduce(
-        (total, application) => total + application._count._all,
-        0
-    );
     
     const dashboardCards = [
         {
             label: "Total Applications",
-            count: totalApplications,
+            count: analytics.totalApplications,
             border: "border-gray-300",
             background: "bg-gray-100"
         },
@@ -49,11 +50,10 @@ function ApplicationDashboard({
     return (
         <section className="mb-8">
             <h2 className="mb-4 text-2xl font-bold text-black!">
-                Dashboard
+                How is your search going?
             </h2>
 
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-col-4">
-
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
                 {dashboardCards.map((card) => (
                     <div
                         key={card.label}
@@ -63,13 +63,43 @@ function ApplicationDashboard({
                             {card.label}
                         </p>
 
-                        <p className="mt-2 text-3xl font-bond text-black!">
+                        <p className="mt-2 text-3xl font-bold text-black!">
                             {card.count}
                         </p>
                     </div>
                 ))}
-
             </div>
+
+            <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2">
+                <div className="rounded-xl border border-gray-300 bg-gray-50 p-5 shadow-sm">
+                    <p className="text-sm text-gray-500">
+                        Response Rate
+                    </p>
+
+                    <p className="mt-2 text-3xl font-bold text-black!">
+                        {Math.round(analytics.responseRate * 100)}%
+                    </p>
+
+                    <p className="mt-1 text-sm text-gray-500">
+                        Applications that received a response
+                    </p>
+                </div>
+
+                <div className="rounded-xl border border-gray-300 bg-gray-50 p-5 shadow-sm">
+                    <p className="text-sm text-gray-500">
+                        Interview Rate
+                    </p>
+
+                    <p className="mt-2 text-3xl font-bold text-black!">
+                        {Math.round(analytics.interviewRate * 100)}%
+                    </p>
+
+                    <p className="mt-1 text-sm text-gray-500">
+                        Applications that reached an interview
+                    </p>
+                </div>
+            </div>
+
         </section>
     );
 }

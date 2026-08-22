@@ -1,5 +1,5 @@
 import type { Application } from './components/ApplicationCard.tsx';
-import type { ApplicationStatusCount } from './types/analytics';
+import type { Analytics } from './types/analytics';
 import { useMemo, useEffect, useState } from 'react';
 
 import ApplicationDashboard from './components/ApplicationDashboard.tsx';
@@ -19,7 +19,7 @@ function App() {
 
     const [applications, setApplications] = useState<Application[]>([]);
 
-    const [applicationStatuses, setApplicationStatuses] = useState<ApplicationStatusCount[]>([]);
+    const [analytics, setAnalytics] = useState<Analytics | null>(null);
 
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null)
@@ -52,7 +52,7 @@ function App() {
             }
         };
 
-        const fetchApplicationStatuses = async () => {
+        const fetchApplicationAnalytics = async () => {
             try {
                 const response = await fetch(
                     `${API_URL}/api/analytics`,
@@ -65,19 +65,19 @@ function App() {
                     throw new Error("Failed to fetch application statuses");
                 }
 
-                const data: ApplicationStatusCount[] = await response.json();
+                const data: Analytics = await response.json();
 
-                setApplicationStatuses(data);
+                setAnalytics(data);
             } catch (error) {
                 console.error(error);
                 setError("Failed to load application statuses");
             } finally {
                 setLoading(false);
             }
-        }
+        };
 
         fetchApplications();
-        fetchApplicationStatuses();
+        fetchApplicationAnalytics();
     }, [isAuthenticated]);
 
     const [selectedApplication, setSelectedApplication] =
@@ -335,7 +335,7 @@ function App() {
                 </header>
 
                 <ApplicationDashboard
-                    applicationStatuses={applicationStatuses}
+                    analytics={analytics}
                 />
 
                 <section>

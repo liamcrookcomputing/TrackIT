@@ -1,6 +1,6 @@
 import { useMemo, useState } from "react";
 import type { Application } from "./ApplicationCard";
-import type { ApplicationStatusCount } from "../types/analytics";
+import type { Analytics } from "../types/analytics";
 import ApplicationDashboard from "./ApplicationDashboard";
 import ApplicationList from "./ApplicationList";
 import ApplicationForm from "./ApplicationForm";
@@ -51,7 +51,7 @@ function LandingPage({
         );
     }, [applications, search]);
 
-    const applicationStatuses: ApplicationStatusCount[] = [
+    const applicationStatuses: Analytics["applicationStatuses"] = [
         "Saved",
         "Applied",
         "Interview",
@@ -67,6 +67,37 @@ function LandingPage({
             ).length
         }
     }));
+
+    const totalApplications = applications.length;
+
+    const respondedApplications = applications.filter(
+        application =>
+            application.status === "Interview" ||
+            application.status === "Technical Assessment" ||
+            application.status === "Final Interview" ||
+            application.status === "Offer" ||
+            application.status === "Rejected"
+    );
+
+    const interviewedApplications = applications.filter(
+        application =>
+            application.status === "Interview" ||
+            application.status === "Final Interview"
+    );
+
+    const analytics: Analytics = {
+        totalApplications,
+        responseRate:
+            totalApplications === 0
+                ? 0
+                : respondedApplications.length / totalApplications,
+        interviewRate:
+            totalApplications === 0
+                ? 0
+                : interviewedApplications.length / totalApplications,
+        applicationStatuses,
+        rejectionReasons: []
+    };
 
     function addApplication(newApplication: Application) {
         setApplications((currentApplications) => [
@@ -150,7 +181,7 @@ function LandingPage({
                     <div className="rounded-2xl border bg-white p-6 shadow-sm">
 
                         <ApplicationDashboard
-                            applicationStatuses={applicationStatuses}
+                            analytics={analytics}
                         />
 
                         <section className="mt-8">

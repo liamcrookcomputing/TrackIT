@@ -1,6 +1,6 @@
 import "dotenv/config";
 import cors from "cors";
-import express, { application } from "express";
+import express, { application, response } from "express";
 import type { Request, Response, NextFunction } from "express";
 import bcrypt from "bcrypt";
 import session from "express-session";
@@ -510,29 +510,88 @@ app.get("/api/analytics", async (req, res) => {
     try {
         const userId = getUserId(req);
 
-        const totalApplications = await prisma.application.count({
+        const applications = await prisma.application.findMany({
             where: {
                 userId
+            },
+            include: {
+                events: true
             }
         });
 
         const applicationStatuses = await prisma.application.groupBy({
-            where: { 
-                userId 
+            where: {
+                userId
             },
-            by: ['status'],
-            _count: { 
-                _all: true 
+            by: ["status"],
+            _count: {
+                _all: true
             }
         });
 
-        return res.status(200).json(applicationStatuses);
+        const rejectionReasons = await prisma.applicationEvent.groupBy({
+            where: {
+                status: ApplicationStatus.Rejected,
+                application: {
+                    userId
+                }
+            },
+            by: ["reason"],
+            _count: {
+                _all: true
+            }
+        });
+
+        const formattedRejectionReasons = rejectionReasons.map((item) => ({
+            reason: item.reason ?? "Not specified",
+            count: item._count._all
+        }));
+
+        const totalApplications = applications.length
+
+        // analytics calculations
+        // check if applications has moved beyond applied
+        const respondedApplications = applications.filter((application) =>
+            application.events.some((event) =>
+                event.status === ApplicationStatus.Interview ||
+                event.status === ApplicationStatus.TechnicalAssessment ||
+                event.status === ApplicationStatus.FinalInterview ||
+                event.status === ApplicationStatus.Offer ||
+                event.status === ApplicationStatus.Rejected
+            )
+        );
+
+        // check if applications has reached interview or final interview
+        const interviewedApplications = applications.filter((application) =>
+            application.events.some((event) =>
+                event.status === ApplicationStatus.Interview ||
+                event.status === ApplicationStatus.FinalInterview
+            )
+        );
+
+        // calculate rates
+        const responseRate =
+            totalApplications === 0
+                ? 0
+                :respondedApplications.length / totalApplications;
+        const interviewRate = 
+            totalApplications === 0
+            ? 0
+            :interviewedApplications.length / totalApplications;
+
+        return res.status(200).json({
+            totalApplications,
+            responseRate,
+            interviewRate,
+            applicationStatuses,
+            rejectionReasons: formattedRejectionReasons
+        });
 
     } catch (error) {
         console.error(error);
 
         return res.status(500).json({
-            error: "Failed to check authentication"
+            error: "Failed to fetch analytics"
         });
     }
 });

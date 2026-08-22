@@ -4,3 +4,16 @@ export type ApplicationStatusCount = {
         _all: number;
     };
 };
+
+export type RejectionReasonCount = {
+    reason: string;
+    count: number;
+}
+
+export type Analytics = {
+    totalApplications: number;
+    responseRate: number;
+    interviewRate: number;
+    applicationStatuses: ApplicationStatusCount[];
+    rejectionReasons: RejectionReasonCount[];
+}
