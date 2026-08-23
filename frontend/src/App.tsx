@@ -23,6 +23,29 @@ function App() {
 
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null)
+
+    async function fetchApplicationAnalytics() {
+        try {
+            const response = await fetch(
+                `${API_URL}/api/analytics`,
+                {
+                    credentials: "include"
+                }
+            );
+
+            if (!response.ok) {
+                throw new Error("Failed to fetch application analytics");
+            }
+
+            const data: Analytics = await response.json();
+
+            setAnalytics(data);
+        } catch (error) {
+            console.error(error);
+            setError("Failed to load application analytics")
+        }
+    }
+
     useEffect(() => {
         if (!isAuthenticated) {
             return;
@@ -47,30 +70,6 @@ function App() {
             } catch (error) {
                 console.error(error);
                 setError("Failed to load applications");
-            } finally {
-                setLoading(false);
-            }
-        };
-
-        const fetchApplicationAnalytics = async () => {
-            try {
-                const response = await fetch(
-                    `${API_URL}/api/analytics`,
-                    {
-                        credentials: "include"
-                    }
-                );
-
-                if (!response.ok) {
-                    throw new Error("Failed to fetch application statuses");
-                }
-
-                const data: Analytics = await response.json();
-
-                setAnalytics(data);
-            } catch (error) {
-                console.error(error);
-                setError("Failed to load application statuses");
             } finally {
                 setLoading(false);
             }
@@ -160,6 +159,8 @@ function App() {
                 createdApplication
             ]);
 
+            await fetchApplicationAnalytics();
+
             setAddApplicationRender(false);
         } catch (error) {
             console.error(error);
@@ -202,6 +203,7 @@ function App() {
         );
 
         setApplications(updatedApplication);
+        await fetchApplicationAnalytics();
         setSelectedApplication(null);
 
         } catch (error) {
@@ -228,6 +230,8 @@ function App() {
                     (application) => application.id !== deletedApplication.id
                 )
             );
+
+            await fetchApplicationAnalytics();
 
         } catch (error) {
             console.error(error)

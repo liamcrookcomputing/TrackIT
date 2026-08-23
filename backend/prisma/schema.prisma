@@ -47,7 +47,7 @@ enum ApplicationStatus {
 model ApplicationEvent {
   id            String            @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   applicationId String            @db.Uuid
-  application   Application       @relation(fields: [applicationId], references: [id])
+  application   Application       @relation(fields: [applicationId], references: [id], onDelete: Cascade)
   status        ApplicationStatus
   reason        String?
   createdAt     DateTime          @default(now())

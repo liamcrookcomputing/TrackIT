@@ -14,6 +14,8 @@ export type Analytics = {
     totalApplications: number;
     responseRate: number;
     interviewRate: number;
+    offerRate: number;
+    rejectRate: number;
     applicationStatuses: ApplicationStatusCount[];
     rejectionReasons: RejectionReasonCount[];
 }
