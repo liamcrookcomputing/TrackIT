@@ -565,7 +565,20 @@ app.get("/api/analytics", async (req, res) => {
         const interviewedApplications = applications.filter((application) =>
             application.events.some((event) =>
                 event.status === ApplicationStatus.Interview ||
+                event.status === ApplicationStatus.TechnicalAssessment ||
                 event.status === ApplicationStatus.FinalInterview
+            )
+        );
+
+        const offeredApplications = applications.filter((application) =>
+            application.events.some((event) =>
+                event.status === ApplicationStatus.Offer
+            )
+        );
+
+        const rejectedApplications = applications.filter((application) =>
+            application.events.some((event) =>
+                event.status === ApplicationStatus.Rejected
             )
         );
 
@@ -578,11 +591,21 @@ app.get("/api/analytics", async (req, res) => {
             totalApplications === 0
             ? 0
             :interviewedApplications.length / totalApplications;
+        const offerRate = 
+            totalApplications === 0
+            ? 0
+            :offeredApplications.length / totalApplications;
+        const rejectRate = 
+            totalApplications === 0
+            ? 0
+            :rejectedApplications.length / totalApplications;
 
         return res.status(200).json({
             totalApplications,
             responseRate,
             interviewRate,
+            offerRate,
+            rejectRate,
             applicationStatuses,
             rejectionReasons: formattedRejectionReasons
         });
