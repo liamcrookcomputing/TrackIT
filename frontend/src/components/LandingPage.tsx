@@ -85,6 +85,14 @@ function LandingPage({
             application.status === "Final Interview"
     );
 
+    const offeredApplications = applications.filter(
+        application => application.status === "Offer"
+    );
+
+    const rejectedApplications = applications.filter(
+        application => application.status === "Rejected"
+    );
+
     const analytics: Analytics = {
         totalApplications,
         responseRate:
@@ -95,6 +103,14 @@ function LandingPage({
             totalApplications === 0
                 ? 0
                 : interviewedApplications.length / totalApplications,
+        offerRate:
+            totalApplications === 0
+                ? 0
+                : offeredApplications.length / totalApplications,
+        rejectRate:
+            totalApplications === 0
+                ? 0
+                : rejectedApplications.length / totalApplications,
         applicationStatuses,
         rejectionReasons: []
     };
