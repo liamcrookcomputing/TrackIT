@@ -1,5 +1,5 @@
-import type { Application } from './components/ApplicationCard.tsx';
 import type { Analytics } from './types/analytics';
+import type { Application, ApplicationInput, ApplicationUpdate } from './types/applications.ts';
 import { useMemo, useEffect, useState } from 'react';
 
 import ApplicationDashboard from './components/ApplicationDashboard.tsx';
@@ -130,7 +130,7 @@ function App() {
         setAddApplicationRender(!addApplicationRender);
     }
 
-    async function addApplication(newApplication: Application) {
+    async function addApplication(newApplication: ApplicationInput) {
         try {
             const response = await fetch(
                 `${API_URL}/api/applications`,
@@ -172,7 +172,7 @@ function App() {
         setSelectedApplication(selectedApplication);
     }
 
-    async function editApplication(editedApplication: Application) {
+    async function editApplication(editedApplication: ApplicationUpdate) {
         try {
             const response = await fetch (
                 `${API_URL}/api/applications/${editedApplication.id}`,

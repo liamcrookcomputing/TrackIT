@@ -1,34 +1,18 @@
 import ApplicationCard from "./ApplicationCard.tsx";
-import type { Application } from "./ApplicationCard.tsx";
+import type { Application } from "../types/applications.ts";
+import { STATUS_CONFIG } from "../types/statusConfig";
 
 function ApplicationList({
-        applications,
-        onEdit,
-        deleteApplication
-    }: {
-        applications: Application[];
-        onEdit: (selectedApplication: Application) => void;
-        deleteApplication: (deletedApplication: Application) => void;
-    }) {
-    const statuses: Application["status"][] = [
-        "Saved",
-        "Applied",
-        "Interview",
-        "Technical Assessment",
-        "Final Interview",
-        "Offer",
-        "Rejected"
-    ];
+    applications,
+    onEdit,
+    deleteApplication
+}: {
+    applications: Application[];
+    onEdit: (selectedApplication: Application) => void;
+    deleteApplication: (deletedApplication: Application) => void;
+}) {
 
-    const statusStyles = {
-        "Saved": "border-gray-200 bg-gray-50",
-        "Applied": "border-gray-200 bg-gray-50",
-        "Interview": "border-gray-200 bg-gray-50",
-        "Technical Assessment": "border-gray-200 bg-gray-50",
-        "Final Interview": "border-gray-200 bg-gray-50",
-        "Offer": "border-gray-200 bg-gray-50",
-        "Rejected": "border-gray-200 bg-gray-50"
-    };
+    const statuses = Object.keys(STATUS_CONFIG) as Application["status"][];
 
     return (
         <div className="flex flex-col gap-6">
@@ -46,9 +30,13 @@ function ApplicationList({
                     return (
                         <div
                             key={status}
-                            className={`rounded-xl border p-4 ${statusStyles[status]}`}
+                            className="rounded-xl border border-gray-200 bg-gray-50 p-4"
                         >
                             <div className="mb-4 flex items-center gap-2">
+                                <span
+                                    className={`h-2.5 w-2.5 rounded-full ${STATUS_CONFIG[status].dotColor}`}
+                                />
+
                                 <h2 className="font-bold !text-black">
                                     {status}
                                 </h2>
