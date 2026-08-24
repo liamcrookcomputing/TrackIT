@@ -30,6 +30,27 @@ function ApplicationDashboard({
         return null;
     }
 
+    if (analytics.totalApplications === 0) {
+        return (
+            <section className="mb-8">
+                <h2 className="mb-4 text-2xl font-bold text-black!">
+                    How is your search going?
+                </h2>
+
+                <div className="rounded-xl border border-blue-200 bg-blue-50 p-6">
+                    <p className="text-lg font-semibold text-blue-900">
+                        Ready to get started?
+                    </p>
+
+                    <p className="mt-1 text-sm text-blue-800">
+                        Add your first application to start seeing insights about
+                        your job search.
+                    </p>
+                </div>
+            </section>
+        );
+    }
+
     const applicationStatuses = analytics.applicationStatuses;
 
     function getStatusCount(status: string) {

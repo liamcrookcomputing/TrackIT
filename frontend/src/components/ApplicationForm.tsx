@@ -1,8 +1,9 @@
 import { useState } from "react";
-import type { Application } from "./ApplicationCard";
 import ConfirmationModal from "./ConfirmationModal";
+import type { Application, ApplicationInput } from "../types/applications";
+import { STATUS_CONFIG } from "../types/statusConfig";
 
-function ApplicationForm({ addApplication, setAddApplicationRender }: { addApplication: (newApplication: Application) => void; setAddApplicationRender: (value: boolean) => void }) {
+function ApplicationForm({ addApplication, setAddApplicationRender }: { addApplication: (newApplication: ApplicationInput) => void; setAddApplicationRender: (value: boolean) => void }) {
     const [position, setPosition] = useState("")
     const [company, setCompany] = useState("")
     const [status, setStatus] = useState<Application["status"]>("Saved")
@@ -31,7 +32,7 @@ function ApplicationForm({ addApplication, setAddApplicationRender }: { addAppli
             <form 
                 onSubmit={handleSubmit}
                 onClick={(e) => e.stopPropagation()}
-                className="flex w-full max-w-[500px] flex-col gap-4 rounded-xl bg-white p-6 shadow-xl"
+                className="flex w-full max-w-125 flex-col gap-4 rounded-xl bg-white p-6 shadow-xl"
             >
                 <div className="flex flex-col gap-1">
                     <label
@@ -74,19 +75,30 @@ function ApplicationForm({ addApplication, setAddApplicationRender }: { addAppli
                         STATUS
                     </label>
 
-                    <select
-                        id="status"
-                        onChange={(e) => setStatus(e.target.value as Application["status"])}
-                        className="rounded-lg border bg-white px-3 py-2 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
-                    >
-                        <option value="Saved">Saved</option>
-                        <option value="Applied">Applied</option>
-                        <option value="Interview">Interview</option>
-                        <option value="Technical Assessment">Technical Assessment</option>
-                        <option value="Final Interview">Final Interview</option>
-                        <option value="Offer">Offer</option>
-                        <option value="Rejected">Rejected</option>
-                    </select>
+                    <div className="relative">
+                        <span
+                            className={`pointer-events-none absolute left-3 top-1/2 h-2.5 w-2.5 -translate-y-1/2 rounded-full ${
+                                STATUS_CONFIG[status].dotColor
+                            }`}
+                        />
+
+                        <select
+                            id="status"
+                            value={status}
+                            onChange={(e) =>
+                                setStatus(e.target.value as Application["status"])
+                            }
+                            className="w-full rounded-lg border bg-white py-2 pl-8 pr-3 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
+                        >
+                            <option value="Saved">Saved</option>
+                            <option value="Applied">Applied</option>
+                            <option value="Interview">Interview</option>
+                            <option value="Technical Assessment">Technical Assessment</option>
+                            <option value="Final Interview">Final Interview</option>
+                            <option value="Offer">Offer</option>
+                            <option value="Rejected">Rejected</option>
+                        </select>
+                    </div>
                 </div>
 
                 <button 
