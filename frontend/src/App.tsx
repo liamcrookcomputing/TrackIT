@@ -83,13 +83,49 @@ function App() {
         useState<Application | null>(null);
 
     const [search, setSearch] = useState("");
+    const [sortOrder, setSortOrder] = useState<
+        "newest" | "oldest" | "stale"
+    >("newest");
+
+    function getLatestActivity(application: Application) {
+        if (!application.events || application.events.length === 0) {
+            return new Date(application.createdAt).getTime();
+        }
+
+        return Math.max(
+            ...application.events.map(
+                event => new Date(event.createdAt).getTime()
+            )
+        );
+    }
 
     const filteredApplications = useMemo(() => {
-        return applications.filter((application) =>
+        const filtered = applications.filter((application) =>
             application.company.toLowerCase().includes(search.toLowerCase()) ||
             application.position.toLowerCase().includes(search.toLowerCase())
         );
-    }, [applications, search]);
+
+        return filtered.sort((a, b) => {
+            const timeA = new Date(a.createdAt).getTime();
+            const timeB = new Date(b.createdAt).getTime();
+
+            if (sortOrder === "newest") {
+                return timeB - timeA;
+            }
+
+            if (sortOrder === "oldest") {
+                return timeA - timeB;
+            }
+
+            if (sortOrder === "stale") {
+                const activityA = getLatestActivity(a);
+                const activityB = getLatestActivity(b);
+                return activityA - activityB;
+            }
+
+            return 0;
+        });
+    }, [applications, search, sortOrder]);
 
     const [addApplicationRender, setAddApplicationRender] = useState(false);
 
@@ -361,13 +397,31 @@ function App() {
                             Applications
                         </h2>
 
-                        <input
-                            type="text"
-                            placeholder="Search applications..."
-                            value={search}
-                            onChange={(e) => setSearch(e.target.value)}
-                            className="w-full rounded-lg border bg-white px-4 py-2 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
-                        />
+                        <div className="flex flex-1 gap-2">
+                            <input
+                                type="text"
+                                placeholder="Search applications..."
+                                value={search}
+                                onChange={(e) => setSearch(e.target.value)}
+                                className="flex-1 rounded-lg border border-gray-700 bg-white px-4 py-2 text-sm text-gray-700 shadow-sm outline-none transition hover:border-gray-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
+                            />
+
+                            <select
+                                id="sort"
+                                value={sortOrder}
+                                onChange={(e) =>
+                                    setSortOrder(
+                                        e.target.value as
+                                            "newest" | "oldest" | "stale"
+                                    )
+                                }
+                                className="w-40 cursor-pointer rounded-lg border border-gray-700 bg-white px-4 py-2 text-sm text-gray-700 shadow-sm outline-none transition hover:border-gray-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
+                            >
+                                <option value="newest">Newest</option>
+                                <option value="oldest">Oldest</option>
+                                <option value="stale">Stale</option>
+                            </select>
+                        </div>
                     </div>
 
                     {loading && (

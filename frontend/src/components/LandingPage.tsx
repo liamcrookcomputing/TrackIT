@@ -1,6 +1,7 @@
 import { useMemo, useState } from "react";
 import type { Application, ApplicationInput, ApplicationUpdate } from "../types/applications";
 import type { Analytics } from "../types/analytics";
+import { mockApplications } from "../data/mockApplications";
 import ApplicationDashboard from "./ApplicationDashboard";
 import ApplicationList from "./ApplicationList";
 import ApplicationForm from "./ApplicationForm";
@@ -14,55 +15,8 @@ function LandingPage({
     onLogin: () => void;
     onRegister: () => void;
 }) {
-    const [applications, setApplications] = useState<Application[]>([
-        {
-            id: 1,
-            position: "Frontend Developer",
-            company: "Google",
-            status: "Applied",
-            createdAt: "2026-08-18T09:00:00.000Z",
-            events: [
-                {
-                    status: "Applied",
-                    createdAt: "2026-08-18T09:00:00.000Z"
-                }
-            ]
-        },
-        {
-            id: 2,
-            position: "Software Engineer",
-            company: "Amazon",
-            status: "Interview",
-            createdAt: "2026-08-10T11:30:00.000Z",
-            events: [
-                {
-                    status: "Applied",
-                    createdAt: "2026-08-10T11:30:00.000Z"
-                },
-                {
-                    status: "Interview",
-                    createdAt: "2026-08-20T14:00:00.000Z"
-                }
-            ]
-        },
-        {
-            id: 3,
-            position: "Junior Developer",
-            company: "Meta",
-            status: "Technical Assessment",
-            createdAt: "2026-08-05T08:45:00.000Z",
-            events: [
-                {
-                    status: "Applied",
-                    createdAt: "2026-08-05T08:45:00.000Z"
-                },
-                {
-                    status: "Technical Assessment",
-                    createdAt: "2026-08-22T10:15:00.000Z"
-                }
-            ]
-        }
-    ]);
+    const [applications, setApplications] =
+        useState<Application[]>(mockApplications);
 
     const [selectedApplication, setSelectedApplication] =
         useState<Application | null>(null);
@@ -73,12 +27,52 @@ function LandingPage({
     const [search, setSearch] =
         useState("");
     
+    const [sortOrder, setSortOrder] = useState<
+        "newest" | "oldest" | "stale"
+    >("newest");
+
+    function getLatestActivity(application: Application) {
+        if (!application.events || application.events.length === 0) {
+            return new Date(application.createdAt).getTime();
+        }
+
+        return Math.max(
+            ...application.events.map(
+                event => new Date(event.createdAt).getTime()
+            )
+        );
+    }
+    
     const filteredApplications = useMemo(() => {
-        return applications.filter((application) =>
+        const filtered = applications.filter((application) =>
             application.company.toLowerCase().includes(search.toLowerCase()) ||
             application.position.toLowerCase().includes(search.toLowerCase())
         );
-    }, [applications, search]);
+
+        return filtered.sort((a, b) => {
+            const timeA = new Date(a.createdAt).getTime();
+            const timeB = new Date(b.createdAt).getTime();
+
+            if (sortOrder === "newest") {
+                return timeB - timeA;
+            }
+
+            if (sortOrder === "oldest") {
+                return timeA - timeB;
+            }
+
+            if (sortOrder === "stale") {
+                const activityA = getLatestActivity(a);
+                const activityB = getLatestActivity(b);
+
+                return activityA - activityB;
+            }
+
+            return 0;
+        });
+    }, [applications, search, sortOrder]);
+
+
 
     const applicationStatuses: Analytics["applicationStatuses"] = [
         "Saved",
@@ -270,15 +264,35 @@ function LandingPage({
                                     Applications
                                 </h2>
 
-                                <input
-                                    type="text"
-                                    placeholder="Search applications..."
-                                    value={search}
-                                    onChange={(event) =>
-                                        setSearch(event.target.value)
-                                    }
-                                    className="w-full rounded-lg border bg-white px-4 py-2 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
-                                />
+                                <div className="flex flex-1 gap-2">
+                                    <input
+                                        type="text"
+                                        placeholder="Search applications..."
+                                        value={search}
+                                        onChange={(event) =>
+                                            setSearch(event.target.value)
+                                        }
+                                        className="flex-1 rounded-lg border border-gray-700 bg-white px-4 py-2 text-sm text-gray-700 shadow-sm outline-none transition hover:border-gray-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
+                                    />
+
+                                    <select
+                                        id="sort"
+                                        value={sortOrder}
+                                        onChange={(event) =>
+                                            setSortOrder(
+                                                event.target.value as
+                                                    | "newest"
+                                                    | "oldest"
+                                                    | "stale"
+                                            )
+                                        }
+                                        className="w-40 cursor-pointer rounded-lg border border-gray-700 bg-white px-4 py-2 text-sm text-gray-700 shadow-sm outline-none transition hover:border-gray-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
+                                    >
+                                        <option value="newest">Newest</option>
+                                        <option value="oldest">Oldest</option>
+                                        <option value="stale">Stale</option>
+                                    </select>
+                                </div>
                             </div>
 
                             <ApplicationList

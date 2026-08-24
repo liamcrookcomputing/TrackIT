@@ -37,7 +37,7 @@ function ApplicationList({
                                     className={`h-2.5 w-2.5 rounded-full ${STATUS_CONFIG[status].dotColor}`}
                                 />
 
-                                <h2 className="font-bold !text-black">
+                                <h2 className="font-bold text-black!">
                                     {status}
                                 </h2>
 
