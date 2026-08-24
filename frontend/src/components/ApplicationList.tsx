@@ -58,11 +58,11 @@ function ApplicationList({
                                 </span>
                             </div>
 
-                            <div className="flex gap-4 overflow-x-auto pb-2">
+                            <div className="flex gap-2 overflow-x-auto pb-2">
                                 {statusApplications.map((application) => (
                                     <div
                                         key={application.id}
-                                        className="w-[400px] shrink-0"
+                                        className="w-75 shrink-0"
                                     >
                                         <ApplicationCard
                                             application={application}

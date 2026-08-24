@@ -19,19 +19,48 @@ function LandingPage({
             id: 1,
             position: "Frontend Developer",
             company: "Google",
-            status: "Applied"
+            status: "Applied",
+            createdAt: "2026-08-18T09:00:00.000Z",
+            events: [
+                {
+                    status: "Applied",
+                    createdAt: "2026-08-18T09:00:00.000Z"
+                }
+            ]
         },
         {
             id: 2,
             position: "Software Engineer",
             company: "Amazon",
-            status: "Interview"
+            status: "Interview",
+            createdAt: "2026-08-10T11:30:00.000Z",
+            events: [
+                {
+                    status: "Applied",
+                    createdAt: "2026-08-10T11:30:00.000Z"
+                },
+                {
+                    status: "Interview",
+                    createdAt: "2026-08-20T14:00:00.000Z"
+                }
+            ]
         },
         {
             id: 3,
             position: "Junior Developer",
             company: "Meta",
-            status: "Technical Assessment"
+            status: "Technical Assessment",
+            createdAt: "2026-08-05T08:45:00.000Z",
+            events: [
+                {
+                    status: "Applied",
+                    createdAt: "2026-08-05T08:45:00.000Z"
+                },
+                {
+                    status: "Technical Assessment",
+                    createdAt: "2026-08-22T10:15:00.000Z"
+                }
+            ]
         }
     ]);
 

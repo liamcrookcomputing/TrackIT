@@ -123,6 +123,9 @@ app.get("/api/applications", async (req, res) => {
         const applications = await prisma.application.findMany({
             where: {
                 userId
+            },
+            include: {
+                events: true
             }
         });
 
@@ -168,6 +171,9 @@ app.post("/api/applications", async (req, res) => {
                     company,
                     status: prismaStatus,
                     userId
+                },
+                include: {
+                    events: true
                 }
             });
 
@@ -242,6 +248,9 @@ app.patch("/api/applications/:id", async (req, res) => {
                                     position,
                                     company,
                                     status: newStatus
+                                },
+                                include: {
+                                    events: true
                                 }
                             });
 
@@ -255,7 +264,14 @@ app.patch("/api/applications/:id", async (req, res) => {
                             }
                         });
 
-                        return updatedApplication;
+                        return tx.application.findUniqueOrThrow({
+                            where: {
+                                id: updatedApplication.id
+                            },
+                            include: {
+                                events: true
+                            }
+                        });
                     }
                 );
 
@@ -275,6 +291,9 @@ app.patch("/api/applications/:id", async (req, res) => {
             data: {
                 position,
                 company
+            },
+            include: {
+                events: true
             }
         });
 

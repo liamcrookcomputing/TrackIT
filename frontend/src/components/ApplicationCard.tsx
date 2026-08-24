@@ -2,7 +2,14 @@ export interface Application {
     readonly id: number | string;
     position: string;
     company: string;
-    status: "Saved" | "Applied" | "Interview" | "Technical Assessment" | "Final Interview" | "Offer" | "Rejected"
+    status: "Saved" | "Applied" | "Interview" | "Technical Assessment" | "Final Interview" | "Offer" | "Rejected";
+    createdAt: string;
+    events: ApplicationEvent[];
+}
+
+export interface ApplicationEvent {
+    status: Application["status"];
+    createdAt: string;
 }
 
 import { useState } from "react";
@@ -22,9 +29,63 @@ function ApplicationCard({ application, onEdit, deleteApplication }:
 
     const [showConfirmation, setShowConfirmation] = useState(false);
 
+    const statusChangeEvents = application.events.filter(
+        event =>
+            event.status !== "Saved" &&
+            event.status !== "Applied" &&
+            (
+                application.status === "Interview" ||
+                application.status === "Technical Assessment" ||
+                application.status === "Final Interview" ||
+                application.status === "Offer" ||
+                application.status === "Rejected"
+            )
+    );
+
+    const latestEvent =
+        application.status === "Applied"
+            ? undefined
+            : statusChangeEvents.length > 0
+                ? statusChangeEvents.reduce((latest, event) => {
+                    const latestDate = new Date(latest.createdAt);
+                    const eventDate = new Date(event.createdAt);
+
+                    if (eventDate > latestDate) return event;
+                    return latest;
+                })
+                : undefined;
+
+    const appliedEvent = application.events.find(
+        event => event.status === "Applied"
+    );
+
+    function formatDate(dateString: string) {
+        const date = new Date(dateString);
+        const now = new Date();
+
+        const differenceInMilliseconds = now.getTime() - date.getTime();
+        const differenceInDays = Math.floor(
+            differenceInMilliseconds / (1000 * 60 * 60 * 24)
+        );
+
+        if (differenceInDays === 0) {
+            return "Today"
+        }
+        if (differenceInDays === 1) {
+            return "Yesterday"
+        }
+        if (differenceInDays < 7) {
+            return `${differenceInDays} days ago`;
+        }
+        return new Intl.DateTimeFormat("en-AU", {
+            month: "short",
+            day: "numeric"
+        }).format(date);
+    }
+
     return (
         <div className="relative">
-            <div className={`m-4 flex h-42 max-w-[300px] flex-col rounded-xl border p-5 shadow-sm transition hover:shadow-md ${statusStyles[application.status]}`}>
+            <div className={`flex h-42 max-w-75 flex-col rounded-xl border p-5 shadow-sm transition hover:shadow-md ${statusStyles[application.status]}`}>
                 <div className="flex items-start justify-between gap-4">
                     <div>
                         <p className="mt-0 text-xl font-bold">
@@ -40,6 +101,17 @@ function ApplicationCard({ application, onEdit, deleteApplication }:
                         {application.status}
                     </span>
                 </div>
+
+                {appliedEvent && (
+                    <div className="mt-2 text-sm text-gray-400">
+                        Applied · {formatDate(appliedEvent.createdAt)}
+                    </div>
+                )}
+                {latestEvent && (
+                    <div className="mt-2 text-sm text-gray-400">
+                        {latestEvent.status} · {formatDate(latestEvent.createdAt)}
+                    </div>
+                )}
 
                 <div className="mt-auto flex justify-end gap-2 pt-5">
                     <button
