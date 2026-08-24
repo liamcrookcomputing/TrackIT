@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import type { Application } from "./ApplicationCard";
+import type { Application, ApplicationInput, ApplicationUpdate } from "../types/applications";
 import type { Analytics } from "../types/analytics";
 import ApplicationDashboard from "./ApplicationDashboard";
 import ApplicationList from "./ApplicationList";
@@ -144,23 +144,37 @@ function LandingPage({
         rejectionReasons: []
     };
 
-    function addApplication(newApplication: Application) {
+    const createdAt = new Date().toISOString();
+
+    function addApplication(newApplication: ApplicationInput) {
         setApplications((currentApplications) => [
             ...currentApplications,
             {
                 ...newApplication,
-                id: Date.now()
+                id: Date.now(),
+                createdAt,
+                events: [
+                    {
+                        status: newApplication.status,
+                        createdAt
+                    }
+                ]
             }
         ]);
 
         setAddApplicationRender(false);
     }
 
-    function editApplication(editedApplication: Application) {
+    function editApplication(editedApplication: ApplicationUpdate) {
         setApplications((currentApplications) =>
             currentApplications.map((application) =>
                 application.id === editedApplication.id
-                    ? editedApplication
+                    ? {
+                        ...application,
+                        position: editedApplication.position,
+                        company: editedApplication.company,
+                        status: editedApplication.status
+                    }
                     : application
             )
         );
