@@ -3,8 +3,17 @@ import ConfirmationModal from "./ConfirmationModal";
 import type { Application } from "../types/applications";
 import { STATUS_CONFIG } from "../types/statusConfig";
 
-function ApplicationCard({ application, onEdit, deleteApplication }: 
-    { application: Application, onEdit: (selectedApplication: Application) => void, deleteApplication: (deletedApplication: Application) => void}) {
+function ApplicationCard({ 
+    application, 
+    onEdit, 
+    deleteApplication,
+    onViewDetails
+}: { 
+    application: Application;
+    onEdit: (selectedApplication: Application) => void;
+    deleteApplication: (deletedApplication: Application) => void;
+    onViewDetails: (application: Application) => void;
+}) {
 
     const [showConfirmation, setShowConfirmation] = useState(false);
     const [showMenu, setShowMenu] = useState(false);
@@ -111,7 +120,8 @@ function ApplicationCard({ application, onEdit, deleteApplication }:
     return (
         <div className="relative">
             <div
-                className={`flex h-42 w-full flex-col rounded-xl border bg-white p-5 shadow-sm transition hover:shadow-md ${
+                onClick={() => onViewDetails(application)}
+                className={`flex h-42 w-full cursor-pointer flex-col rounded-xl border bg-white p-5 shadow-sm transition hover:shadow-md ${
                     statusConfig.cardBorder
                 } ${isStale ? "border-amber-400" : ""}`}
             >
@@ -130,18 +140,24 @@ function ApplicationCard({ application, onEdit, deleteApplication }:
                         <button
                             type="button"
                             aria-label="Application options"
-                            onClick={() => setShowMenu(!showMenu)}
+                            onClick={(event) => {
+                                event.stopPropagation();
+                                setShowMenu(!showMenu);
+                            }}
                             className="rounded-full bg-white px-3 py-1 text-xs font-semibold shadow-sm hover:bg-gray-100"
                         >
                             ⋮
                         </button>
 
                         {showMenu && (
-                            <div className="absolute right-0 top-full z-10 mt-2 w-32 rounded-lg border bg-white py-1 shadow-lg">
+                            <div 
+                                onClick={(event) => event.stopPropagation()}
+                                className="absolute right-0 top-full z-10 mt-2 w-32 rounded-lg border bg-white py-1 shadow-lg">
                                 <button
                                     type="button"
                                     className="w-full px-3 py-2 text-left text-sm hover:bg-gray-100"
-                                    onClick={() => {
+                                    onClick={(event) => {
+                                        event.stopPropagation();
                                         setShowMenu(false);
                                         onEdit(application);
                                     }}
@@ -152,7 +168,8 @@ function ApplicationCard({ application, onEdit, deleteApplication }:
                                 <button
                                     type="button"
                                     className="w-full px-3 py-2 text-left text-sm text-red-600 hover:bg-red-50"
-                                    onClick={() => {
+                                    onClick={(event) => {
+                                        event.stopPropagation();
                                         setShowMenu(false);
                                         setShowConfirmation(true);
                                     }}

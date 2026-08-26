@@ -5,11 +5,13 @@ import { STATUS_CONFIG } from "../types/statusConfig";
 function ApplicationList({
     applications,
     onEdit,
-    deleteApplication
+    deleteApplication,
+    onViewDetails
 }: {
     applications: Application[];
-    onEdit: (selectedApplication: Application) => void;
-    deleteApplication: (deletedApplication: Application) => void;
+    onEdit: (application: Application) => void;
+    deleteApplication: (application: Application) => void;
+    onViewDetails: (application: Application) => void;
 }) {
 
     const statuses = Object.keys(STATUS_CONFIG) as Application["status"][];
@@ -56,6 +58,7 @@ function ApplicationList({
                                             application={application}
                                             onEdit={onEdit}
                                             deleteApplication={deleteApplication}
+                                            onViewDetails={onViewDetails}
                                         />
                                     </div>
                                 ))}

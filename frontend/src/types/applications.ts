@@ -14,9 +14,13 @@ export interface Application {
     status: ApplicationStatus;
     createdAt: string;
     events: ApplicationEvent[];
+    notes: string | null;
+    source: string | null;
 }
 
 export interface ApplicationEvent {
+    id: number | string;
+    reason: string | null;
     status: ApplicationStatus;
     createdAt: string;
 }

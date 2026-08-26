@@ -6,6 +6,7 @@ import ApplicationDashboard from './components/ApplicationDashboard.tsx';
 import ApplicationList from './components/ApplicationList.tsx';
 import ApplicationForm from './components/ApplicationForm.tsx';
 import ApplicationEdit from './components/ApplicationEdit.tsx';
+import ApplicationDetail from './components/ApplicationDetail.tsx';
 import LoginForm from './components/LoginForm.tsx'
 import RegisterForm from './components/RegisterForm.tsx';
 import LandingPage from './components/LandingPage.tsx';
@@ -81,6 +82,16 @@ function App() {
 
     const [selectedApplication, setSelectedApplication] =
         useState<Application | null>(null);
+    const [detailApplication, setDetailApplication] =
+        useState<Application | null>(null);
+
+    function onViewDetails(application: Application) {
+        setDetailApplication(application);
+    }
+
+    function closeDetail() {
+        setDetailApplication(null);
+    }
 
     const [search, setSearch] = useState("");
     const [sortOrder, setSortOrder] = useState<
@@ -446,6 +457,7 @@ function App() {
                                 applications={filteredApplications}
                                 onEdit={onEdit}
                                 deleteApplication={deleteApplication}
+                                onViewDetails={onViewDetails}
                             />
 
                             {filteredApplications.length === 0 && (
@@ -466,6 +478,13 @@ function App() {
                     application={selectedApplication}
                     editApplication={editApplication}
                     cancelEdit={cancelEdit}
+                />
+            )}
+
+            {detailApplication && (
+                <ApplicationDetail
+                    application={detailApplication}
+                    onClose={closeDetail}
                 />
             )}
 
