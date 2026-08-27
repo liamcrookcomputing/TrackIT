@@ -5,8 +5,7 @@ import { mockApplications } from "../data/mockApplications";
 import ApplicationDashboard from "./ApplicationDashboard";
 import ApplicationList from "./ApplicationList";
 import ApplicationForm from "./ApplicationForm";
-import ApplicationEdit from "./ApplicationEdit";
-
+import ApplicationDetail from "./ApplicationDetail";
 
 function LandingPage({
     onLogin,
@@ -18,8 +17,8 @@ function LandingPage({
     const [applications, setApplications] =
         useState<Application[]>(mockApplications);
 
-    const [selectedApplication, setSelectedApplication] =
-        useState<Application | null>(null);
+    const [detailApplication, setDetailApplication] =
+    useState<Application | null>(null);
     
     const [addApplicationRender, setAddApplicationRender] =
         useState(false);
@@ -138,19 +137,23 @@ function LandingPage({
         rejectionReasons: []
     };
 
-    const createdAt = new Date().toISOString();
-
     function addApplication(newApplication: ApplicationInput) {
+        const createdAt = new Date().toISOString();
+
         setApplications((currentApplications) => [
             ...currentApplications,
             {
                 ...newApplication,
                 id: Date.now(),
                 createdAt,
+                notes: "",
+                source: "",
                 events: [
                     {
+                        id: Date.now(),
                         status: newApplication.status,
-                        createdAt
+                        createdAt,
+                        reason: null
                     }
                 ]
             }
@@ -167,13 +170,13 @@ function LandingPage({
                         ...application,
                         position: editedApplication.position,
                         company: editedApplication.company,
-                        status: editedApplication.status
+                        status: editedApplication.status,
+                        notes: editedApplication.notes ?? null,
+                        source: editedApplication.source ?? null
                     }
                     : application
             )
         );
-        
-        setSelectedApplication(null);
     }
 
     function deleteApplication(deletedApplication: Application) {
@@ -184,12 +187,12 @@ function LandingPage({
         );
     }
 
-    function onEdit(application: Application) {
-        setSelectedApplication(application);
+    function onViewDetails(application: Application) {
+        setDetailApplication(application);
     }
 
-    function cancelEdit() {
-        setSelectedApplication(null);
+    function closeDetail() {
+        setDetailApplication(null);
     }
 
     return (
@@ -297,8 +300,8 @@ function LandingPage({
 
                             <ApplicationList
                                 applications={filteredApplications}
-                                onEdit={onEdit}
                                 deleteApplication={deleteApplication}
+                                onViewDetails={onViewDetails}
                             />
 
                             {filteredApplications.length === 0 && (
@@ -313,12 +316,11 @@ function LandingPage({
                 </section>
             </div>
 
-            {selectedApplication && (
-                <ApplicationEdit
-                    key={selectedApplication.id}
-                    application={selectedApplication}
+            {detailApplication && (
+                <ApplicationDetail
+                    application={detailApplication}
+                    onClose={closeDetail}
                     editApplication={editApplication}
-                    cancelEdit={cancelEdit}
                 />
             )}
         </main>

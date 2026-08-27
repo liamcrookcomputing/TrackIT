@@ -5,12 +5,10 @@ import { STATUS_CONFIG } from "../types/statusConfig";
 
 function ApplicationCard({ 
     application, 
-    onEdit, 
     deleteApplication,
     onViewDetails
 }: { 
     application: Application;
-    onEdit: (selectedApplication: Application) => void;
     deleteApplication: (deletedApplication: Application) => void;
     onViewDetails: (application: Application) => void;
 }) {
@@ -152,18 +150,8 @@ function ApplicationCard({
                         {showMenu && (
                             <div 
                                 onClick={(event) => event.stopPropagation()}
-                                className="absolute right-0 top-full z-10 mt-2 w-32 rounded-lg border bg-white py-1 shadow-lg">
-                                <button
-                                    type="button"
-                                    className="w-full px-3 py-2 text-left text-sm hover:bg-gray-100"
-                                    onClick={(event) => {
-                                        event.stopPropagation();
-                                        setShowMenu(false);
-                                        onEdit(application);
-                                    }}
-                                >
-                                    Edit
-                                </button>
+                                className="absolute right-0 top-full z-10 mt-2 w-32 rounded-lg border bg-white py-1 shadow-lg"
+                            >
 
                                 <button
                                     type="button"
