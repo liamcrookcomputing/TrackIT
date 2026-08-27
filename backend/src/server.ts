@@ -1,6 +1,6 @@
 import "dotenv/config";
 import cors from "cors";
-import express, { application, response } from "express";
+import express from "express";
 import type { Request, Response, NextFunction } from "express";
 import bcrypt from "bcrypt";
 import session from "express-session";
@@ -144,10 +144,43 @@ app.get("/api/applications", async (req, res) => {
     }
 });
 
+app.get("/api/applications/sources", async (req, res) => {
+    try {
+        const userId = getUserId(req);
+
+        const sources = await prisma.application.findMany({
+            where: {
+                userId,
+                source: {
+                    not: null
+                }
+            },
+            select: {
+                source: true
+            },
+            distinct: ["source"],
+            orderBy: {
+                source: "asc"
+            }
+        });
+
+        const formattedSources = sources.map((application) => application.source)
+            .filter((source): source is string => source !== null);
+
+        return res.status(200).json(formattedSources);
+    } catch (error) {
+        console.error(error);
+
+        return res.status(500).json({
+            error: "Failed to fetch application sources"
+        });
+    }
+});
+
 app.post("/api/applications", async (req, res) => {
     try {
         const userId = getUserId(req);
-        const { position, company, status } = req.body;
+        const { position, company, status, notes, source } = req.body;
 
         if (!position || !company || !status) {
             return res.status(400).json({
@@ -170,7 +203,9 @@ app.post("/api/applications", async (req, res) => {
                     position,
                     company,
                     status: prismaStatus,
-                    userId
+                    userId,
+                    notes: notes ?? null,
+                    source: source ?? null
                 },
                 include: {
                     events: true
@@ -208,7 +243,7 @@ app.patch("/api/applications/:id", async (req, res) => {
         const id = req.params.id;
         const userId = getUserId(req);
 
-        const { position, company, status, reason } = req.body;
+        const { position, company, status, rejectionReason, notes, source } = req.body;
 
         //get current application status
         const application = await prisma.application.findFirst({
@@ -218,10 +253,28 @@ app.patch("/api/applications/:id", async (req, res) => {
             }
         });
 
+        const updateData: Prisma.ApplicationUpdateInput = {};
+
         if (!application) {
             return res.status(404).json({
                 error: "Failed to find application"
             });
+        }
+
+        if (position !== undefined) {
+            updateData.position = position;
+        }
+
+        if (company !== undefined) {
+            updateData.company = company;
+        }
+
+        if (notes !== undefined) {
+            updateData.notes = notes;
+        }
+
+        if (source !== undefined) {
+            updateData.source = source;
         }
 
         if (status !== undefined) {
@@ -245,8 +298,7 @@ app.patch("/api/applications/:id", async (req, res) => {
                                     userId
                                 },
                                 data: {
-                                    position,
-                                    company,
+                                    ...updateData,
                                     status: newStatus
                                 },
                                 include: {
@@ -259,7 +311,7 @@ app.patch("/api/applications/:id", async (req, res) => {
                                 applicationId: application.id,
                                 status: newStatus,
                                 reason: newStatus === ApplicationStatus.Rejected
-                                    ? reason ?? null
+                                    ? rejectionReason ?? null
                                     : null
                             }
                         });
@@ -282,16 +334,39 @@ app.patch("/api/applications/:id", async (req, res) => {
             }
         }
 
+        if (
+            rejectionReason !== undefined &&
+            application.status === ApplicationStatus.Rejected
+        ) {
+            const rejectedEvent = await prisma.applicationEvent.findFirst({
+                where: {
+                    applicationId: application.id,
+                    status: ApplicationStatus.Rejected
+                },
+                orderBy: {
+                    createdAt: "desc"
+                }
+            });
+
+            if (rejectedEvent) {
+                await prisma.applicationEvent.update({
+                    where: {
+                        id: rejectedEvent.id
+                    },
+                    data: {
+                        reason: rejectionReason
+                    }
+                });
+            }
+        }
+
         // else update application only
         const updatedApplication = await prisma.application.update({
             where: {
                 id,
                 userId
             },
-            data: {
-                position,
-                company
-            },
+            data: updateData,
             include: {
                 events: true
             }

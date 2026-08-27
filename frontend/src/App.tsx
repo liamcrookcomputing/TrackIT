@@ -5,7 +5,7 @@ import { useMemo, useEffect, useState } from 'react';
 import ApplicationDashboard from './components/ApplicationDashboard.tsx';
 import ApplicationList from './components/ApplicationList.tsx';
 import ApplicationForm from './components/ApplicationForm.tsx';
-import ApplicationEdit from './components/ApplicationEdit.tsx';
+import ApplicationDetail from './components/ApplicationDetail.tsx';
 import LoginForm from './components/LoginForm.tsx'
 import RegisterForm from './components/RegisterForm.tsx';
 import LandingPage from './components/LandingPage.tsx';
@@ -79,8 +79,16 @@ function App() {
         fetchApplicationAnalytics();
     }, [isAuthenticated]);
 
-    const [selectedApplication, setSelectedApplication] =
+    const [detailApplication, setDetailApplication] =
         useState<Application | null>(null);
+
+    function onViewDetails(application: Application) {
+        setDetailApplication(application);
+    }
+
+    function closeDetail() {
+        setDetailApplication(null);
+    }
 
     const [search, setSearch] = useState("");
     const [sortOrder, setSortOrder] = useState<
@@ -203,11 +211,6 @@ function App() {
         }
     }
 
-
-    function onEdit(selectedApplication: Application) {
-        setSelectedApplication(selectedApplication);
-    }
-
     async function editApplication(editedApplication: ApplicationUpdate) {
         try {
             const response = await fetch (
@@ -221,7 +224,10 @@ function App() {
                     body: JSON.stringify({
                         position: editedApplication.position,
                         company: editedApplication.company,
-                        status: editedApplication.status
+                        status: editedApplication.status,
+                        notes: editedApplication.notes,
+                        source: editedApplication.source,
+                        rejectionReason: editedApplication.rejectionReason
                     })
                 }
             );
@@ -232,15 +238,16 @@ function App() {
 
             const serverApplication: Application = await response.json();
 
-            const updatedApplication = applications.map((application) =>
-            serverApplication.id === application.id
-                ? serverApplication
-                : application
-        );
+            setApplications((currentApplications) =>
+                currentApplications.map((application) =>
+                    application.id === serverApplication.id
+                        ? serverApplication
+                        : application
+                )
+            );
 
-        setApplications(updatedApplication);
-        await fetchApplicationAnalytics();
-        setSelectedApplication(null);
+            setDetailApplication(serverApplication);
+            await fetchApplicationAnalytics();
 
         } catch (error) {
             console.error(error)
@@ -272,10 +279,6 @@ function App() {
         } catch (error) {
             console.error(error)
         }
-    }
-
-    function cancelEdit() {
-        setSelectedApplication(null);
     }
 
     async function handleLogout() {
@@ -444,8 +447,8 @@ function App() {
                         <>
                             <ApplicationList
                                 applications={filteredApplications}
-                                onEdit={onEdit}
                                 deleteApplication={deleteApplication}
+                                onViewDetails={onViewDetails}
                             />
 
                             {filteredApplications.length === 0 && (
@@ -460,12 +463,11 @@ function App() {
                 </section>
             </div>
 
-            {selectedApplication && (
-                <ApplicationEdit
-                    key={selectedApplication.id}
-                    application={selectedApplication}
+            {detailApplication && (
+                <ApplicationDetail
+                    application={detailApplication}
+                    onClose={closeDetail}
                     editApplication={editApplication}
-                    cancelEdit={cancelEdit}
                 />
             )}
 

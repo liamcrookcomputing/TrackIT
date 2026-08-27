@@ -4,12 +4,12 @@ import { STATUS_CONFIG } from "../types/statusConfig";
 
 function ApplicationList({
     applications,
-    onEdit,
-    deleteApplication
+    deleteApplication,
+    onViewDetails
 }: {
     applications: Application[];
-    onEdit: (selectedApplication: Application) => void;
-    deleteApplication: (deletedApplication: Application) => void;
+    deleteApplication: (application: Application) => void;
+    onViewDetails: (application: Application) => void;
 }) {
 
     const statuses = Object.keys(STATUS_CONFIG) as Application["status"][];
@@ -54,8 +54,8 @@ function ApplicationList({
                                     >
                                         <ApplicationCard
                                             application={application}
-                                            onEdit={onEdit}
                                             deleteApplication={deleteApplication}
+                                            onViewDetails={onViewDetails}
                                         />
                                     </div>
                                 ))}
